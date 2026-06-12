@@ -2,30 +2,26 @@
 
 ## Checklist de Fases
 
-- [x] **Fase 1** — Setup: Next.js + Tailwind + Supabase instalado + auth básico (login/logout) + RLS inicial ✓ commitado
-- [x] **Fase 2** — Modelo de dados + migrations SQL + RLS completas ✓ commitado
-- [x] **Fase 3** — Lado agência: CRUD de clientes, calendários e posts com upload de imagem ✓ commitado
-- [x] **Fase 4** — Lado cliente: visualização, três botões (APROVADO/REPROVADO/AJUSTE) + campo obrigatório + histórico ✓ commitado
-- [x] **Fase 5** — Painel de status/atividades + marcar calendário como concluído ✓ commitado
-- [ ] **Fase 6** — README, seed e instruções de deploy na Vercel
+- [x] **Fase 1** — Setup: Next.js + Tailwind + Supabase instalado + auth básico (login/logout) + RLS inicial ✓
+- [x] **Fase 2** — Modelo de dados + migrations SQL + RLS completas ✓
+- [x] **Fase 3** — Lado agência: CRUD de clientes, calendários e posts com upload de imagem ✓
+- [x] **Fase 4** — Lado cliente: visualização, três botões (APROVADO/REPROVADO/AJUSTE) + campo obrigatório + histórico ✓
+- [x] **Fase 5** — Painel de status/atividades + marcar calendário como concluído ✓
+- [x] **Fase 6** — README, seed e instruções de deploy na Vercel ✓
 
 ---
 
 ## Estado atual
 
-**Fase 5 concluída.** Fase 6 é a próxima (última).
+**PROJETO CONCLUÍDO. Todas as 6 fases entregues.**
 
-- `/agencia/atividades` — feed das últimas respostas dos clientes, mais novas primeiro ✓
-- Filtros por status com badges de contagem: Todos / Pendente / Aprovado / Reprovado / Ajuste ✓
-- Visualização de posts pendentes (sem histórico) no filtro "Pendente" ✓
-- Badge vermelho no nav "Atividades" com contagem de posts pendentes ✓
-- Card "Atividades recentes" no dashboard com últimas 5 respostas + link "Ver todas" ✓
-- Nav da agência atualizado com links Dashboard e Atividades ✓
-- TypeScript sem erros ✓
+## Para colocar em produção
 
-## Próximo passo
+1. Criar projeto Supabase e rodar `supabase/migrations/001_initial.sql`
+2. Criar bucket `post-images` (público) no Supabase Storage
+3. Copiar `.env.local.example` → `.env.local` e preencher as chaves
+4. Rodar `supabase/seed_agencia.ts` para criar o primeiro usuário da agência
+5. Push para GitHub → importar na Vercel → adicionar as 3 variáveis de ambiente
+6. Configurar Site URL e Redirect URLs no Supabase Auth
 
-**Fase 6** — README, seed e instruções de deploy:
-- `README.md` em pt-BR com passo a passo completo: criar projeto Supabase, rodar migration, criar bucket Storage, rodar local e deploy na Vercel
-- Instruções do seed (`seed_agencia.ts`)
-- Variáveis de ambiente na Vercel
+Ver `README.md` para passo a passo detalhado.
