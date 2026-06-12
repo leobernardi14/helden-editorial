@@ -9,11 +9,11 @@ export async function createPostAction(formData: FormData) {
   const caption = (formData.get('caption') as string | null) ?? ''
   const postType = (formData.get('post_type') as string | null) || null
   const scheduledDate = (formData.get('scheduled_date') as string | null) || null
-  const imageFile = formData.get('image') as File | null
+  // URL já enviada pelo cliente diretamente ao Storage — nunca o arquivo binário
+  const imageUrl = (formData.get('image_url') as string | null) || null
 
   if (!calendarId) return { error: 'Calendário não encontrado.' }
 
-  // Determina a próxima posição
   const { data: existing } = await supabase
     .from('posts')
     .select('position')
@@ -23,23 +23,6 @@ export async function createPostAction(formData: FormData) {
     .single()
 
   const position = existing ? existing.position + 1 : 0
-
-  let imageUrl: string | null = null
-
-  if (imageFile && imageFile.size > 0) {
-    const ext = imageFile.name.split('.').pop()
-    const path = `${calendarId}/${Date.now()}.${ext}`
-    const bytes = await imageFile.arrayBuffer()
-
-    const { error: uploadErr } = await supabase.storage
-      .from('post-images')
-      .upload(path, bytes, { contentType: imageFile.type, upsert: false })
-
-    if (uploadErr) return { error: `Erro no upload: ${uploadErr.message}` }
-
-    const { data: urlData } = supabase.storage.from('post-images').getPublicUrl(path)
-    imageUrl = urlData.publicUrl
-  }
 
   const { error } = await supabase.from('posts').insert({
     calendar_id: calendarId,
@@ -63,7 +46,7 @@ export async function updatePostAction(formData: FormData) {
   const caption = (formData.get('caption') as string | null) ?? ''
   const postType = (formData.get('post_type') as string | null) || null
   const scheduledDate = (formData.get('scheduled_date') as string | null) || null
-  const imageFile = formData.get('image') as File | null
+  const imageUrl = (formData.get('image_url') as string | null) || null
 
   if (!postId || !calendarId) return { error: 'Dados inválidos.' }
 
@@ -71,23 +54,10 @@ export async function updatePostAction(formData: FormData) {
     caption: caption || null,
     post_type: postType,
     scheduled_date: scheduledDate,
-    status: 'pendente', // volta para pendente ao editar
+    status: 'pendente',
   }
 
-  if (imageFile && imageFile.size > 0) {
-    const ext = imageFile.name.split('.').pop()
-    const path = `${calendarId}/${Date.now()}.${ext}`
-    const bytes = await imageFile.arrayBuffer()
-
-    const { error: uploadErr } = await supabase.storage
-      .from('post-images')
-      .upload(path, bytes, { contentType: imageFile.type, upsert: false })
-
-    if (uploadErr) return { error: `Erro no upload: ${uploadErr.message}` }
-
-    const { data: urlData } = supabase.storage.from('post-images').getPublicUrl(path)
-    updates.image_url = urlData.publicUrl
-  }
+  if (imageUrl) updates.image_url = imageUrl
 
   const { error } = await supabase.from('posts').update(updates).eq('id', postId)
   if (error) return { error: error.message }
@@ -98,12 +68,11 @@ export async function updatePostAction(formData: FormData) {
 
 export async function reorderPostsAction(calendarId: string, orderedIds: string[]) {
   const supabase = await createClient()
-
-  const updates = orderedIds.map((id, index) =>
-    supabase.from('posts').update({ position: index }).eq('id', id)
+  await Promise.all(
+    orderedIds.map((id, index) =>
+      supabase.from('posts').update({ position: index }).eq('id', id)
+    )
   )
-
-  await Promise.all(updates)
   revalidatePath(`/agencia/calendarios/${calendarId}`)
   return { success: true }
 }
@@ -112,7 +81,6 @@ export async function deletePostAction(postId: string, calendarId: string) {
   const supabase = await createClient()
   const { error } = await supabase.from('posts').delete().eq('id', postId)
   if (error) return { error: error.message }
-
   revalidatePath(`/agencia/calendarios/${calendarId}`)
   return { success: true }
 }
