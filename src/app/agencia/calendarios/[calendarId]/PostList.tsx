@@ -6,6 +6,7 @@ import { Post, CalendarStatus, PostStatus } from '@/lib/types'
 import StatusBadge from '@/components/StatusBadge'
 import PostForm from './PostForm'
 import PostHistoryModal from './PostHistoryModal'
+import ImageLightbox from '@/components/ImageLightbox'
 
 const postTypeLabels: Record<string, string> = {
   feed: 'Feed', story: 'Story', reels: 'Reels', carrossel: 'Carrossel',
@@ -23,6 +24,7 @@ export default function PostList({
   const [showAddForm, setShowAddForm] = useState(false)
   const [editingPost, setEditingPost] = useState<Post | null>(null)
   const [historyPost, setHistoryPost] = useState<Post | null>(null)
+  const [lightboxPost, setLightboxPost] = useState<Post | null>(null)
 
   const needsAction: PostStatus[] = ['reprovado', 'ajuste']
 
@@ -78,13 +80,25 @@ export default function PostList({
                 {/* Imagem */}
                 <div className="shrink-0 w-24 h-24 bg-gray-100 rounded-lg overflow-hidden">
                   {post.image_url ? (
-                    <Image
-                      src={post.image_url}
-                      alt={`Post ${idx + 1}`}
-                      width={96}
-                      height={96}
-                      className="w-full h-full object-cover"
-                    />
+                    <button
+                      type="button"
+                      onClick={() => setLightboxPost(post)}
+                      className="block w-full h-full group relative focus:outline-none focus-visible:ring-2 focus-visible:ring-black rounded-lg"
+                      aria-label="Ampliar imagem"
+                    >
+                      <Image
+                        src={post.image_url}
+                        alt={`Post ${idx + 1}`}
+                        width={96}
+                        height={96}
+                        className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors duration-200 rounded-lg flex items-center justify-center">
+                        <span className="text-white text-[10px] font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                          Ampliar
+                        </span>
+                      </div>
+                    </button>
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-300 text-xs">Sem imagem</div>
                   )}
@@ -134,6 +148,14 @@ export default function PostList({
 
       {historyPost && (
         <PostHistoryModal post={historyPost} onClose={() => setHistoryPost(null)} />
+      )}
+
+      {lightboxPost?.image_url && (
+        <ImageLightbox
+          src={lightboxPost.image_url}
+          alt={`Post ${posts.indexOf(lightboxPost) + 1}`}
+          onClose={() => setLightboxPost(null)}
+        />
       )}
     </div>
   )

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Post } from '@/lib/types'
 import PostCardCliente from './PostCardCliente'
+import ProgressoBanner from './ProgressoBanner'
 
 export default async function ClienteCalendarioPage({
   params,
@@ -28,9 +29,6 @@ export default async function ClienteCalendarioPage({
     .order('position')
 
   const postList = (posts ?? []) as Post[]
-  const total = postList.length
-  const done = postList.filter((p) => p.status !== 'pendente').length
-  const progress = total > 0 ? Math.round((done / total) * 100) : 0
 
   return (
     <div>
@@ -42,26 +40,8 @@ export default async function ClienteCalendarioPage({
         )}
       </div>
 
-      {/* Barra de progresso */}
-      {total > 0 && (
-        <div className="bg-white rounded-xl border border-gray-100 p-4 mb-5">
-          <div className="flex items-center justify-between text-sm mb-2">
-            <span className="font-medium text-gray-700">Seu progresso</span>
-            <span className="text-gray-500">{done} de {total} avaliados</span>
-          </div>
-          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-black rounded-full transition-all duration-500"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          {done === total && total > 0 && (
-            <p className="text-xs text-green-600 font-medium mt-2">
-              ✓ Todos os posts avaliados!
-            </p>
-          )}
-        </div>
-      )}
+      {/* Banner de conclusão + barra de progresso (reactivos ao revalidatePath) */}
+      <ProgressoBanner posts={postList} />
 
       {postList.length === 0 && (
         <div className="text-center py-16 text-gray-400">
