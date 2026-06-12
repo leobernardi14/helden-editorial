@@ -7,6 +7,13 @@ import NewClientButton from './clientes/NewClientButton'
 export default async function AgenciaDashboard() {
   const supabase = await createClient()
 
+  // Atividades recentes (últimas 5)
+  const { data: recentActivity } = await supabase
+    .from('approval_history')
+    .select(`action, created_at, profiles(full_name, email), posts(calendar_id, calendars(title, clients(name)))`)
+    .order('created_at', { ascending: false })
+    .limit(5)
+
   const { data: clients } = await supabase
     .from('clients')
     .select('*')
@@ -40,8 +47,47 @@ export default async function AgenciaDashboard() {
     })
   )
 
+  const actionDot: Record<string, string> = {
+    aprovado: 'bg-green-500', reprovado: 'bg-red-500', ajuste: 'bg-yellow-500',
+  }
+  const actionLabel: Record<string, string> = {
+    aprovado: 'Aprovado', reprovado: 'Reprovado', ajuste: 'Ajuste',
+  }
+
   return (
     <div>
+      {/* Card de atividades recentes */}
+      {(recentActivity ?? []).length > 0 && (
+        <div className="bg-white rounded-xl border border-gray-100 p-4 mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-gray-700">Atividades recentes</h2>
+            <Link href="/agencia/atividades" className="text-xs text-gray-400 hover:text-black">Ver todas →</Link>
+          </div>
+          <div className="space-y-2">
+            {(recentActivity as unknown as {
+              action: string; created_at: string;
+              profiles: { full_name: string | null; email: string } | null;
+              posts: { calendar_id: string; calendars: { title: string; clients: { name: string } | null } | null } | null;
+            }[]).map((item, i) => (
+              <Link
+                key={i}
+                href={item.posts?.calendar_id ? `/agencia/calendarios/${item.posts.calendar_id}` : '#'}
+                className="flex items-center gap-2 text-sm hover:bg-gray-50 rounded-lg p-1 -mx-1 transition-colors"
+              >
+                <span className={`w-2 h-2 rounded-full shrink-0 ${actionDot[item.action] ?? 'bg-gray-300'}`} />
+                <span className="text-gray-500 shrink-0">{actionLabel[item.action]}</span>
+                <span className="text-gray-700 font-medium truncate">
+                  {item.profiles?.full_name ?? item.profiles?.email}
+                </span>
+                <span className="text-gray-400 text-xs shrink-0 ml-auto">
+                  {new Date(item.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Clientes</h1>
