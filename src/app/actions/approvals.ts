@@ -21,14 +21,14 @@ export async function submitApprovalAction(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Não autenticado.' }
 
-  // Verifica que o post pertence a um calendário do próprio cliente (RLS garante, mas dupla checagem)
+  // Confirma que o post existe e pertence ao cliente (RLS já garante, mas torna o erro legível)
   const { data: post } = await supabase
     .from('posts')
     .select('id, calendar_id')
     .eq('id', postId)
     .single()
 
-  if (!post) return { error: 'Post não encontrado.' }
+  if (!post) return { error: 'Post não encontrado ou sem permissão de acesso.' }
 
   // Insere no histórico
   const { error: histErr } = await supabase.from('approval_history').insert({
@@ -38,15 +38,21 @@ export async function submitApprovalAction(formData: FormData) {
     responded_by: user.id,
   })
 
-  if (histErr) return { error: histErr.message }
+  if (histErr) return { error: `Erro ao gravar histórico: ${histErr.message}` }
 
-  // Atualiza status do post
-  const { error: postErr } = await supabase
+  // Atualiza status do post — usa .select() para detectar bloqueio silencioso por RLS
+  const { data: updated, error: postErr } = await supabase
     .from('posts')
     .update({ status: action })
     .eq('id', postId)
+    .select('id')
 
-  if (postErr) return { error: postErr.message }
+  if (postErr) return { error: `Erro ao atualizar status: ${postErr.message}` }
+
+  // RLS bloqueou silenciosamente (0 linhas afetadas) — nunca deve ocorrer após migration 004
+  if (!updated || updated.length === 0) {
+    return { error: 'Sem permissão para atualizar este post. Verifique as políticas de acesso.' }
+  }
 
   revalidatePath(`/cliente/calendarios/${calendarId}`)
   return { success: true }
