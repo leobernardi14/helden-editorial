@@ -46,9 +46,7 @@ export default async function ClienteDashboard() {
                 <div className="min-w-0">
                   <p className="font-semibold text-gray-900 truncate">{cal.title}</p>
                   {cal.reference_month && (
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {new Date(cal.reference_month + '-01').toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
-                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">{cal.reference_month}</p>
                   )}
                 </div>
                 <StatusBadge status={cal.status} />

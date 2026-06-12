@@ -41,9 +41,7 @@ export default async function CalendarPage({
             <h1 className="text-2xl font-bold text-gray-900 leading-tight">{calendar.title}</h1>
             <p className="text-gray-500 text-sm mt-0.5">
               {(calendar.clients as { name: string }).name}
-              {calendar.reference_month && (
-                <> · {new Date(calendar.reference_month + '-01').toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</>
-              )}
+              {calendar.reference_month && <> · {calendar.reference_month}</>}
             </p>
           </div>
           <div className="flex items-center gap-2 shrink-0">

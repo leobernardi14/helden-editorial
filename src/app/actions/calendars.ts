@@ -8,12 +8,9 @@ export async function createCalendarAction(formData: FormData) {
   const supabase = await createClient()
   const clientId = formData.get('client_id') as string
   const title = (formData.get('title') as string).trim()
-  const referenceMonthRaw = (formData.get('reference_month') as string | null) ?? ''
+  const referenceMonth = (formData.get('reference_month') as string | null)?.trim() || null
 
   if (!clientId || !title) return { error: 'Preencha o título do calendário.' }
-
-  // <input type="month"> envia "YYYY-MM"; Postgres DATE exige "YYYY-MM-DD"
-  const referenceMonth = referenceMonthRaw ? `${referenceMonthRaw}-01` : null
 
   const { data, error } = await supabase
     .from('calendars')

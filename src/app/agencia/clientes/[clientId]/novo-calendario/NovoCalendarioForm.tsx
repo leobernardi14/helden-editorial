@@ -44,8 +44,12 @@ export default function NovoCalendarioForm({
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Mês de referência <span className="text-gray-400 font-normal">(opcional)</span>
         </label>
-        <input name="reference_month" type="month" className="input" />
-        <p className="text-xs text-gray-400 mt-1">Selecione usando o calendário do campo acima.</p>
+        <input
+          name="reference_month"
+          type="text"
+          className="input"
+          placeholder="Ex.: Junho/2026"
+        />
       </div>
 
       {error && (

@@ -38,9 +38,7 @@ export default async function ClienteCalendarioPage({
         <Link href="/cliente" className="text-sm text-gray-500 hover:text-black">← Voltar</Link>
         <h1 className="text-xl font-bold text-gray-900 mt-2 leading-tight">{calendar.title}</h1>
         {calendar.reference_month && (
-          <p className="text-sm text-gray-500 mt-0.5">
-            {new Date(calendar.reference_month + '-01').toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
-          </p>
+          <p className="text-sm text-gray-500 mt-0.5">{calendar.reference_month}</p>
         )}
       </div>
 
