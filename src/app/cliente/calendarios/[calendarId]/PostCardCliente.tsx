@@ -6,6 +6,7 @@ import { Post, ApprovalAction } from '@/lib/types'
 import { submitApprovalAction } from '@/app/actions/approvals'
 import StatusBadge from '@/components/StatusBadge'
 import ImageLightbox from '@/components/ImageLightbox'
+import ExpandableCaption from '@/components/ExpandableCaption'
 
 const actionConfig: Record<ApprovalAction, { label: string; cls: string; activeCls: string }> = {
   aprovado:  { label: 'Aprovado',  cls: 'border-gray-200 text-gray-700 hover:border-green-400 hover:text-green-700 hover:bg-green-50',  activeCls: 'border-green-500 bg-green-50 text-green-700 font-semibold' },
@@ -119,11 +120,10 @@ export default function PostCardCliente({
                   {new Date(post.scheduled_date + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
                 </p>
               )}
-              {post.caption ? (
-                <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">{post.caption}</p>
-              ) : (
-                <p className="text-sm text-gray-400 italic">Sem legenda</p>
-              )}
+              {post.caption
+                ? <ExpandableCaption text={post.caption} />
+                : <p className="text-sm text-gray-400 italic">Sem legenda</p>
+              }
             </div>
           </div>
         </div>

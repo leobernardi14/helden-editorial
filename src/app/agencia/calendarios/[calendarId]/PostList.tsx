@@ -7,6 +7,7 @@ import StatusBadge from '@/components/StatusBadge'
 import PostForm from './PostForm'
 import PostHistoryModal from './PostHistoryModal'
 import ImageLightbox from '@/components/ImageLightbox'
+import ExpandableCaption from '@/components/ExpandableCaption'
 
 const postTypeLabels: Record<string, string> = {
   feed: 'Feed', story: 'Story', reels: 'Reels', carrossel: 'Carrossel',
@@ -120,9 +121,10 @@ export default function PostList({
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-700 line-clamp-3 whitespace-pre-line">
-                    {post.caption ?? <span className="text-gray-400 italic">Sem legenda</span>}
-                  </p>
+                  {post.caption
+                    ? <ExpandableCaption text={post.caption} />
+                    : <p className="text-sm text-gray-400 italic">Sem legenda</p>
+                  }
                 </div>
 
                 {/* Ações */}
