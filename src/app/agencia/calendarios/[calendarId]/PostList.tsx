@@ -8,9 +8,19 @@ import PostForm from './PostForm'
 import PostHistoryModal from './PostHistoryModal'
 import ImageLightbox from '@/components/ImageLightbox'
 import ExpandableCaption from '@/components/ExpandableCaption'
+import ReleaseArtForm from './ReleaseArtForm'
 
 const postTypeLabels: Record<string, string> = {
   feed: 'Feed', story: 'Story', reels: 'Reels', carrossel: 'Carrossel',
+}
+
+function postNeedsAction(post: Post) {
+  const bad: PostStatus[] = ['reprovado', 'ajuste']
+  return bad.includes(post.status_copy) || bad.includes(post.status_caption) || bad.includes(post.status_art)
+}
+
+function copysApproved(post: Post) {
+  return post.status_copy === 'aprovado' && post.status_caption === 'aprovado'
 }
 
 export default function PostList({
@@ -22,16 +32,11 @@ export default function PostList({
   calendarId: string
   calendarStatus: CalendarStatus
 }) {
-  const [showAddForm, setShowAddForm] = useState(false)
-  const [editingPost, setEditingPost] = useState<Post | null>(null)
-  const [historyPost, setHistoryPost] = useState<Post | null>(null)
-  const [lightboxPost, setLightboxPost] = useState<Post | null>(null)
-
-  const needsAction: PostStatus[] = ['reprovado', 'ajuste']
-
-  function postNeedsAction(post: Post) {
-    return needsAction.includes(post.status_copy) || needsAction.includes(post.status_caption)
-  }
+  const [showAddForm, setShowAddForm]     = useState(false)
+  const [editingPost, setEditingPost]     = useState<Post | null>(null)
+  const [historyPost, setHistoryPost]     = useState<Post | null>(null)
+  const [lightboxPost, setLightboxPost]   = useState<Post | null>(null)
+  const [releasingPost, setReleasingPost] = useState<Post | null>(null)
 
   return (
     <div>
@@ -80,9 +85,20 @@ export default function PostList({
                   onCancel={() => setEditingPost(null)}
                 />
               </div>
+            ) : releasingPost?.id === post.id ? (
+              <div>
+                <h3 className="font-medium text-gray-900 mb-1">Liberar arte — post #{idx + 1}</h3>
+                <p className="text-xs text-gray-500 mb-4">Envie a imagem final da arte para liberar a aprovação pelo cliente.</p>
+                <ReleaseArtForm
+                  post={post}
+                  calendarId={calendarId}
+                  onSuccess={() => setReleasingPost(null)}
+                  onCancel={() => setReleasingPost(null)}
+                />
+              </div>
             ) : (
               <div className="flex gap-4">
-                {/* Imagem */}
+                {/* Miniatura */}
                 <div className="shrink-0 w-24 h-24 bg-gray-100 rounded-lg overflow-hidden">
                   {post.image_url ? (
                     <button
@@ -105,15 +121,25 @@ export default function PostList({
                       </div>
                     </button>
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-300 text-xs">Sem imagem</div>
+                    <div className="w-full h-full flex items-center justify-center text-gray-400 text-[10px] text-center px-1 leading-tight">
+                      Arte em<br/>desenvolvimento
+                    </div>
                   )}
                 </div>
 
                 {/* Conteúdo */}
                 <div className="flex-1 min-w-0">
-                  {/* Cabeçalho: número, tipo, data */}
+                  {/* Cabeçalho */}
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
                     <span className="text-xs text-gray-400 font-medium">#{idx + 1}</span>
+                    {/* Fase badge */}
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                      post.fase === 'arte'
+                        ? 'bg-purple-100 text-purple-700'
+                        : 'bg-blue-100 text-blue-700'
+                    }`}>
+                      {post.fase === 'arte' ? 'Fase: Arte' : 'Fase: Copys'}
+                    </span>
                     {post.post_type && (
                       <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
                         {postTypeLabels[post.post_type]}
@@ -136,7 +162,7 @@ export default function PostList({
                   </div>
 
                   {/* Legenda */}
-                  <div>
+                  <div className="mb-2">
                     <div className="flex items-center gap-2 mb-0.5">
                       <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Legenda</span>
                       <StatusBadge status={post.status_caption} />
@@ -146,6 +172,24 @@ export default function PostList({
                       : <p className="text-sm text-gray-400 italic">Sem legenda</p>
                     }
                   </div>
+
+                  {/* Arte */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Arte</span>
+                      {post.fase === 'arte'
+                        ? <StatusBadge status={post.status_art} />
+                        : <span className="text-xs text-gray-400 italic">aguardando liberação</span>
+                      }
+                    </div>
+                  </div>
+
+                  {/* Alerta: pronto para liberar arte */}
+                  {post.fase === 'copys' && copysApproved(post) && (
+                    <div className="mt-2 flex items-center gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-1.5">
+                      <span className="text-xs text-green-700 font-medium">✓ Copys aprovadas — pronto para liberar arte</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Ações */}
@@ -162,6 +206,15 @@ export default function PostList({
                   >
                     Histórico
                   </button>
+                  {/* Liberar arte: disponível quando copys aprovadas e ainda na fase copys */}
+                  {post.fase === 'copys' && copysApproved(post) && (
+                    <button
+                      onClick={() => setReleasingPost(post)}
+                      className="text-xs text-white bg-black hover:bg-gray-800 rounded-md px-2 py-1 transition-colors"
+                    >
+                      Liberar arte
+                    </button>
+                  )}
                 </div>
               </div>
             )}

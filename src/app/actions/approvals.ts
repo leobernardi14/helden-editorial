@@ -14,7 +14,7 @@ export async function submitApprovalAction(formData: FormData) {
   const comment    = (formData.get('comment') as string | null)?.trim() ?? ''
 
   if (!postId || !calendarId || !part || !action) return { error: 'Dados inválidos.' }
-  if (!['copy', 'caption'].includes(part)) return { error: 'Parte inválida.' }
+  if (!['copy', 'caption', 'art'].includes(part)) return { error: 'Parte inválida.' }
 
   if (action === 'ajuste' && !comment) {
     return { error: 'Descreva o ajuste necessário antes de enviar.' }
@@ -31,7 +31,6 @@ export async function submitApprovalAction(formData: FormData) {
 
   if (!post) return { error: 'Post não encontrado ou sem permissão de acesso.' }
 
-  // Insere no histórico com a parte referenciada
   const { error: histErr } = await supabase.from('approval_history').insert({
     post_id: postId,
     part,
@@ -42,8 +41,10 @@ export async function submitApprovalAction(formData: FormData) {
 
   if (histErr) return { error: `Erro ao gravar histórico: ${histErr.message}` }
 
-  // Atualiza o status da parte correspondente
-  const statusField = part === 'copy' ? 'status_copy' : 'status_caption'
+  const statusField =
+    part === 'copy'    ? 'status_copy' :
+    part === 'caption' ? 'status_caption' :
+                         'status_art'
 
   const { data: updated, error: postErr } = await supabase
     .from('posts')

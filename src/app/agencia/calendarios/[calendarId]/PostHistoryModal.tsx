@@ -41,6 +41,7 @@ export default function PostHistoryModal({
             <p className="text-xs text-gray-500 mt-0.5 flex items-center gap-1.5 flex-wrap">
               Copy: <StatusBadge status={post.status_copy} />
               · Legenda: <StatusBadge status={post.status_caption} />
+              · Arte: <StatusBadge status={post.status_art} />
             </p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-xl leading-none">×</button>
@@ -57,11 +58,11 @@ export default function PostHistoryModal({
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                      h.part === 'copy'
-                        ? 'bg-blue-50 text-blue-700'
-                        : 'bg-purple-50 text-purple-700'
+                      h.part === 'copy'    ? 'bg-blue-50 text-blue-700' :
+                      h.part === 'caption' ? 'bg-purple-50 text-purple-700' :
+                                             'bg-orange-50 text-orange-700'
                     }`}>
-                      {h.part === 'copy' ? 'Copy da arte' : 'Legenda'}
+                      {h.part === 'copy' ? 'Copy da arte' : h.part === 'caption' ? 'Legenda' : 'Arte'}
                     </span>
                     <span className={`text-sm font-medium ${
                       h.action === 'aprovado' ? 'text-green-700' :

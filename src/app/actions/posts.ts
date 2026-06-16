@@ -34,8 +34,10 @@ export async function createPostAction(formData: FormData) {
     caption,
     post_type: postType,
     scheduled_date: scheduledDate,
+    fase: 'copys',
     status_copy: 'pendente',
     status_caption: 'pendente',
+    status_art: 'pendente',
   })
 
   if (error) return { error: error.message }
@@ -63,7 +65,7 @@ export async function updatePostAction(formData: FormData) {
     caption,
     post_type: postType,
     scheduled_date: scheduledDate,
-    // Editar conteúdo reseta ambos os status para pendente
+    // Editar textos reseta copys para pendente; fase e status_art permanecem
     status_copy: 'pendente',
     status_caption: 'pendente',
   }
@@ -71,6 +73,27 @@ export async function updatePostAction(formData: FormData) {
   if (imageUrl) updates.image_url = imageUrl
 
   const { error } = await supabase.from('posts').update(updates).eq('id', postId)
+  if (error) return { error: error.message }
+
+  revalidatePath(`/agencia/calendarios/${calendarId}`)
+  return { success: true }
+}
+
+// Agência libera a arte: sobe a imagem (já feita no client) e muda fase para 'arte'
+export async function releaseArtAction(formData: FormData) {
+  const supabase = await createClient()
+  const postId     = formData.get('post_id') as string
+  const calendarId = formData.get('calendar_id') as string
+  const imageUrl   = (formData.get('image_url') as string | null) || null
+
+  if (!postId || !calendarId) return { error: 'Dados inválidos.' }
+  if (!imageUrl) return { error: 'Envie a imagem da arte antes de liberar.' }
+
+  const { error } = await supabase
+    .from('posts')
+    .update({ image_url: imageUrl, fase: 'arte', status_art: 'pendente' })
+    .eq('id', postId)
+
   if (error) return { error: error.message }
 
   revalidatePath(`/agencia/calendarios/${calendarId}`)

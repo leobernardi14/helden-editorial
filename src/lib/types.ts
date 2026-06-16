@@ -3,7 +3,8 @@ export type CalendarStatus = 'rascunho' | 'enviado' | 'concluido'
 export type PostStatus = 'pendente' | 'aprovado' | 'reprovado' | 'ajuste'
 export type PostType = 'feed' | 'story' | 'reels' | 'carrossel'
 export type ApprovalAction = 'aprovado' | 'reprovado' | 'ajuste'
-export type ApprovalPart = 'copy' | 'caption'
+export type ApprovalPart = 'copy' | 'caption' | 'art'
+export type PostFase = 'copys' | 'arte'
 
 export interface Client {
   id: string
@@ -44,6 +45,8 @@ export interface Post {
   status: PostStatus        // legado — removido na E7
   status_copy: PostStatus
   status_caption: PostStatus
+  status_art: PostStatus
+  fase: PostFase
   created_at: string
   updated_at: string
 }
