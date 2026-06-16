@@ -1,10 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { ApprovalAction } from '@/lib/types'
+import { ApprovalAction, ApprovalPart } from '@/lib/types'
 
 export type HistoryItem = {
   id: string
+  part: ApprovalPart
   action: ApprovalAction
   comment: string | null
   created_at: string
@@ -108,6 +109,13 @@ export default function AtividadesFeed({
               <div className="flex items-center gap-2 flex-wrap">
                 <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${cfg.bg} ${cfg.text}`}>
                   {cfg.label}
+                </span>
+                <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                  item.part === 'copy'    ? 'bg-blue-50 text-blue-700' :
+                  item.part === 'caption' ? 'bg-purple-50 text-purple-700' :
+                                            'bg-orange-50 text-orange-700'
+                }`}>
+                  {item.part === 'copy' ? 'Copy da arte' : item.part === 'caption' ? 'Legenda' : 'Arte'}
                 </span>
                 <span className="text-sm text-gray-700 font-medium">{author}</span>
                 <span className="text-xs text-gray-400">{timeAgo(item.created_at)}</span>

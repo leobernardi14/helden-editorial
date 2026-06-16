@@ -14,15 +14,8 @@ const actionConfig: Record<ApprovalAction, { label: string; cls: string; activeC
   ajuste:    { label: 'Ajuste',    cls: 'border-gray-200 text-gray-700 hover:border-yellow-400 hover:text-yellow-700 hover:bg-yellow-50', activeCls: 'border-yellow-500 bg-yellow-50 text-yellow-700 font-semibold' },
 }
 
-// Bloco de avaliação independente para copy ou legenda
 function ApprovalBlock({
-  postId,
-  calendarId,
-  part,
-  label,
-  text,
-  currentStatus,
-  disabled,
+  postId, calendarId, part, label, text, currentStatus, disabled,
 }: {
   postId: string
   calendarId: string
@@ -33,26 +26,22 @@ function ApprovalBlock({
   disabled: boolean
 }) {
   const isPendente = currentStatus === 'pendente'
-  const [expanded, setExpanded] = useState(isPendente)
+  const [expanded, setExpanded]           = useState(isPendente)
   const [selectedAction, setSelectedAction] = useState<ApprovalAction | null>(null)
-  const [comment, setComment] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [comment, setComment]             = useState('')
+  const [loading, setLoading]             = useState(false)
+  const [error, setError]                 = useState<string | null>(null)
 
-  const isAjuste = selectedAction === 'ajuste'
+  const isAjuste  = selectedAction === 'ajuste'
   const canSubmit = selectedAction && (!isAjuste || comment.trim().length > 0)
 
   const borderColor: Record<PostStatus, string> = {
-    pendente:  'border-gray-200',
-    aprovado:  'border-green-200',
-    reprovado: 'border-red-200',
-    ajuste:    'border-yellow-200',
+    pendente: 'border-gray-200', aprovado: 'border-green-200',
+    reprovado: 'border-red-200', ajuste: 'border-yellow-200',
   }
   const bgColor: Record<PostStatus, string> = {
-    pendente:  'bg-gray-50',
-    aprovado:  'bg-green-50/40',
-    reprovado: 'bg-red-50/40',
-    ajuste:    'bg-yellow-50/40',
+    pendente: 'bg-gray-50', aprovado: 'bg-green-50/40',
+    reprovado: 'bg-red-50/40', ajuste: 'bg-yellow-50/40',
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -60,37 +49,28 @@ function ApprovalBlock({
     if (!canSubmit) return
     setError(null)
     setLoading(true)
-
     const fd = new FormData()
     fd.append('post_id', postId)
     fd.append('calendar_id', calendarId)
     fd.append('part', part)
     fd.append('action', selectedAction!)
     if (isAjuste) fd.append('comment', comment.trim())
-
     const result = await submitApprovalAction(fd)
-    if (result?.error) {
-      setError(result.error)
-      setLoading(false)
-    } else {
-      setExpanded(false)
-      setSelectedAction(null)
-      setComment('')
-      setLoading(false)
-    }
+    if (result?.error) { setError(result.error); setLoading(false) }
+    else { setExpanded(false); setSelectedAction(null); setComment(''); setLoading(false) }
   }
+
+  const partColor =
+    part === 'copy'    ? 'text-blue-700' :
+    part === 'caption' ? 'text-purple-700' :
+                         'text-orange-700'
 
   return (
     <div className={`rounded-xl border ${borderColor[currentStatus]} overflow-hidden`}>
-      {/* Cabeçalho do bloco */}
       <div className={`px-4 py-3 ${bgColor[currentStatus]}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className={`text-xs font-semibold uppercase tracking-wide ${
-              part === 'copy' ? 'text-blue-700' : 'text-purple-700'
-            }`}>
-              {label}
-            </span>
+            <span className={`text-xs font-semibold uppercase tracking-wide ${partColor}`}>{label}</span>
             <StatusBadge status={currentStatus} />
           </div>
           {!isPendente && !disabled && (
@@ -105,12 +85,10 @@ function ApprovalBlock({
         </div>
       </div>
 
-      {/* Texto do campo */}
       <div className="px-4 py-3">
         <ExpandableCaption text={text} />
       </div>
 
-      {/* Área de avaliação */}
       {!disabled && (isPendente || expanded) && (
         <div className="border-t border-gray-100 bg-gray-50 p-4">
           <form onSubmit={handleSubmit}>
@@ -144,9 +122,9 @@ function ApprovalBlock({
                   rows={3}
                   className="input resize-none text-sm"
                   placeholder={
-                    part === 'copy'
-                      ? 'Ex.: Alterar a cor do texto, corrigir a palavra…'
-                      : 'Ex.: Alterar o horário para 18h, adicionar hashtags…'
+                    part === 'copy'    ? 'Ex.: Alterar a cor do texto, corrigir a palavra…' :
+                    part === 'caption' ? 'Ex.: Alterar o horário para 18h, adicionar hashtags…' :
+                                        'Ex.: A arte ficou muito escura, ajustar o contraste…'
                   }
                 />
                 {comment.trim().length === 0 && (
@@ -155,9 +133,7 @@ function ApprovalBlock({
               </div>
             )}
             {error && (
-              <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2 mb-3">
-                {error}
-              </p>
+              <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2 mb-3">{error}</p>
             )}
             {selectedAction && (
               <button
@@ -181,9 +157,9 @@ function ApprovalBlock({
   )
 }
 
-// Cor da barra lateral do card baseada no pior status dos dois campos
-function cardBorderColor(statusCopy: PostStatus, statusCaption: PostStatus): string {
-  const statuses = [statusCopy, statusCaption]
+function cardBorderColor(post: Post): string {
+  const statuses = [post.status_copy, post.status_caption]
+  if (post.fase === 'arte') statuses.push(post.status_art)
   if (statuses.includes('reprovado')) return 'border-l-red-400'
   if (statuses.includes('ajuste'))    return 'border-l-yellow-400'
   if (statuses.every((s) => s === 'aprovado')) return 'border-l-green-400'
@@ -205,8 +181,8 @@ export default function PostCardCliente({
 
   return (
     <>
-      <div className={`bg-white rounded-xl border border-gray-100 border-l-4 ${cardBorderColor(post.status_copy, post.status_caption)} overflow-hidden`}>
-        {/* Cabeçalho do post */}
+      <div className={`bg-white rounded-xl border border-gray-100 border-l-4 ${cardBorderColor(post)} overflow-hidden`}>
+        {/* Cabeçalho */}
         <div className="px-4 pt-4 pb-3">
           <div className="flex items-center gap-2 mb-3 flex-wrap">
             <span className="text-xs font-medium text-gray-400">Post #{index + 1}</span>
@@ -222,9 +198,9 @@ export default function PostCardCliente({
             )}
           </div>
 
-          {/* Imagem */}
-          {post.image_url && (
-            <div className="mb-4">
+          {/* Arte: imagem real ou placeholder */}
+          <div className="mb-4">
+            {post.fase === 'arte' && post.image_url ? (
               <button
                 type="button"
                 onClick={() => setLightboxOpen(true)}
@@ -244,8 +220,14 @@ export default function PostCardCliente({
                   </span>
                 </div>
               </button>
-            </div>
-          )}
+            ) : (
+              <div className="w-full sm:w-64 h-32 bg-gray-100 rounded-lg flex flex-col items-center justify-center gap-1 text-gray-400">
+                <span className="text-2xl">🎨</span>
+                <span className="text-xs font-medium">Arte em desenvolvimento</span>
+                <span className="text-xs text-gray-400">A arte será liberada após aprovação das copys</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Bloco Copy da arte */}
@@ -262,7 +244,7 @@ export default function PostCardCliente({
         </div>
 
         {/* Bloco Legenda */}
-        <div className="px-4 pb-4">
+        <div className="px-4 pb-3">
           <ApprovalBlock
             postId={post.id}
             calendarId={calendarId}
@@ -273,9 +255,33 @@ export default function PostCardCliente({
             disabled={disabled}
           />
         </div>
+
+        {/* Bloco Arte — só na fase 'arte' */}
+        {post.fase === 'arte' && (
+          <div className="px-4 pb-4">
+            <ApprovalBlock
+              postId={post.id}
+              calendarId={calendarId}
+              part="art"
+              label="Arte"
+              text="Avalie a imagem da arte acima."
+              currentStatus={post.status_art}
+              disabled={disabled}
+            />
+          </div>
+        )}
+
+        {/* Fase copys: info sobre arte ainda não liberada */}
+        {post.fase === 'copys' && (
+          <div className="px-4 pb-4">
+            <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-center">
+              <p className="text-xs text-gray-500 font-medium">Arte em desenvolvimento</p>
+              <p className="text-xs text-gray-400 mt-0.5">A arte será liberada para aprovação após as copys serem avaliadas.</p>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Lightbox */}
       {lightboxOpen && post.image_url && (
         <ImageLightbox
           src={post.image_url}
