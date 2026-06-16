@@ -11,9 +11,17 @@
 
 ---
 
-## Estado atual
+## Feature: Campos separados Copy + Legenda com aprovação independente
 
-**PROJETO CONCLUÍDO. Todas as 6 fases entregues.**
+- [x] **E1 — Migration SQL** — entregar SQL exato para rodar no Supabase
+- [ ] **E2 — Tipos + Actions** — `types.ts`, `posts.ts`, `approvals.ts`
+- [ ] **E3 — Formulário agência** — PostForm (2 campos obrigatórios) + PostList (2 status)
+- [ ] **E4 — Lado cliente** — PostCardCliente: dois blocos independentes
+- [ ] **E5 — Progresso e banner** — ProgressoBanner conta posts com ambas as partes avaliadas
+- [ ] **E6 — Agência: histórico e Atividades** — part (copy|caption) visível em todo o fluxo
+- [ ] **E7 — Limpeza e push final** — remover coluna `status` legada, tsc limpo
+
+---
 
 ## Para colocar em produção
 

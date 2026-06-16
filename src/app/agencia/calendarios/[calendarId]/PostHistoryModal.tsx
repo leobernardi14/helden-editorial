@@ -38,8 +38,9 @@ export default function PostHistoryModal({
         <div className="flex items-center justify-between p-5 border-b border-gray-100">
           <div>
             <h2 className="font-semibold text-gray-900">Histórico do post</h2>
-            <p className="text-xs text-gray-500 mt-0.5 flex items-center gap-1.5">
-              Status atual: <StatusBadge status={post.status} />
+            <p className="text-xs text-gray-500 mt-0.5 flex items-center gap-1.5 flex-wrap">
+              Copy: <StatusBadge status={post.status_copy} />
+              · Legenda: <StatusBadge status={post.status_caption} />
             </p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-700 text-xl leading-none">×</button>
@@ -54,12 +55,21 @@ export default function PostHistoryModal({
             {history.map((h) => (
               <div key={h.id} className="border border-gray-100 rounded-xl p-4">
                 <div className="flex items-center justify-between mb-1">
-                  <span className={`text-sm font-medium ${
-                    h.action === 'aprovado' ? 'text-green-700' :
-                    h.action === 'reprovado' ? 'text-red-700' : 'text-yellow-700'
-                  }`}>
-                    {actionLabels[h.action]}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                      h.part === 'copy'
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'bg-purple-50 text-purple-700'
+                    }`}>
+                      {h.part === 'copy' ? 'Copy da arte' : 'Legenda'}
+                    </span>
+                    <span className={`text-sm font-medium ${
+                      h.action === 'aprovado' ? 'text-green-700' :
+                      h.action === 'reprovado' ? 'text-red-700' : 'text-yellow-700'
+                    }`}>
+                      {actionLabels[h.action]}
+                    </span>
+                  </div>
                   <span className="text-xs text-gray-400">
                     {new Date(h.created_at).toLocaleString('pt-BR')}
                   </span>

@@ -5,14 +5,16 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function createPostAction(formData: FormData) {
   const supabase = await createClient()
-  const calendarId = formData.get('calendar_id') as string
-  const caption = (formData.get('caption') as string | null) ?? ''
-  const postType = (formData.get('post_type') as string | null) || null
+  const calendarId    = formData.get('calendar_id') as string
+  const copyText      = (formData.get('copy_text') as string | null)?.trim() ?? ''
+  const caption       = (formData.get('caption') as string | null)?.trim() ?? ''
+  const postType      = (formData.get('post_type') as string | null) || null
   const scheduledDate = (formData.get('scheduled_date') as string | null) || null
-  // URL já enviada pelo cliente diretamente ao Storage — nunca o arquivo binário
-  const imageUrl = (formData.get('image_url') as string | null) || null
+  const imageUrl      = (formData.get('image_url') as string | null) || null
 
   if (!calendarId) return { error: 'Calendário não encontrado.' }
+  if (!copyText)   return { error: 'O campo "Copy da arte" é obrigatório.' }
+  if (!caption)    return { error: 'O campo "Legenda" é obrigatório.' }
 
   const { data: existing } = await supabase
     .from('posts')
@@ -28,9 +30,12 @@ export async function createPostAction(formData: FormData) {
     calendar_id: calendarId,
     position,
     image_url: imageUrl,
-    caption: caption || null,
+    copy_text: copyText,
+    caption,
     post_type: postType,
     scheduled_date: scheduledDate,
+    status_copy: 'pendente',
+    status_caption: 'pendente',
   })
 
   if (error) return { error: error.message }
@@ -41,20 +46,26 @@ export async function createPostAction(formData: FormData) {
 
 export async function updatePostAction(formData: FormData) {
   const supabase = await createClient()
-  const postId = formData.get('post_id') as string
-  const calendarId = formData.get('calendar_id') as string
-  const caption = (formData.get('caption') as string | null) ?? ''
-  const postType = (formData.get('post_type') as string | null) || null
+  const postId        = formData.get('post_id') as string
+  const calendarId    = formData.get('calendar_id') as string
+  const copyText      = (formData.get('copy_text') as string | null)?.trim() ?? ''
+  const caption       = (formData.get('caption') as string | null)?.trim() ?? ''
+  const postType      = (formData.get('post_type') as string | null) || null
   const scheduledDate = (formData.get('scheduled_date') as string | null) || null
-  const imageUrl = (formData.get('image_url') as string | null) || null
+  const imageUrl      = (formData.get('image_url') as string | null) || null
 
   if (!postId || !calendarId) return { error: 'Dados inválidos.' }
+  if (!copyText) return { error: 'O campo "Copy da arte" é obrigatório.' }
+  if (!caption)  return { error: 'O campo "Legenda" é obrigatório.' }
 
   const updates: Record<string, unknown> = {
-    caption: caption || null,
+    copy_text: copyText,
+    caption,
     post_type: postType,
     scheduled_date: scheduledDate,
-    status: 'pendente',
+    // Editar conteúdo reseta ambos os status para pendente
+    status_copy: 'pendente',
+    status_caption: 'pendente',
   }
 
   if (imageUrl) updates.image_url = imageUrl

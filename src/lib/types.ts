@@ -3,6 +3,7 @@ export type CalendarStatus = 'rascunho' | 'enviado' | 'concluido'
 export type PostStatus = 'pendente' | 'aprovado' | 'reprovado' | 'ajuste'
 export type PostType = 'feed' | 'story' | 'reels' | 'carrossel'
 export type ApprovalAction = 'aprovado' | 'reprovado' | 'ajuste'
+export type ApprovalPart = 'copy' | 'caption'
 
 export interface Client {
   id: string
@@ -34,10 +35,13 @@ export interface Post {
   calendar_id: string
   position: number
   image_url: string | null
+  copy_text: string
   caption: string | null
   post_type: PostType | null
   scheduled_date: string | null
-  status: PostStatus
+  status: PostStatus        // legado — removido na E7
+  status_copy: PostStatus
+  status_caption: PostStatus
   created_at: string
   updated_at: string
 }
@@ -45,6 +49,7 @@ export interface Post {
 export interface ApprovalHistory {
   id: string
   post_id: string
+  part: ApprovalPart
   action: ApprovalAction
   comment: string | null
   responded_by: string

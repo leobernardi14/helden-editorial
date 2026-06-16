@@ -132,10 +132,29 @@ export default function PostForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Legenda</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Copy da arte <span className="text-red-500">*</span>
+          <span className="ml-1 text-xs font-normal text-gray-400">(texto dentro da imagem)</span>
+        </label>
+        <textarea
+          name="copy_text"
+          rows={3}
+          required
+          defaultValue={post?.copy_text ?? ''}
+          className="input resize-none"
+          placeholder="Digite o texto que aparece dentro da arte…"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Legenda <span className="text-red-500">*</span>
+          <span className="ml-1 text-xs font-normal text-gray-400">(texto da publicação)</span>
+        </label>
         <textarea
           name="caption"
           rows={4}
+          required
           defaultValue={post?.caption ?? ''}
           className="input resize-none"
           placeholder="Digite a legenda do post…"

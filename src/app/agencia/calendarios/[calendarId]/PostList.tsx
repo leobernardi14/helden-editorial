@@ -29,6 +29,10 @@ export default function PostList({
 
   const needsAction: PostStatus[] = ['reprovado', 'ajuste']
 
+  function postNeedsAction(post: Post) {
+    return needsAction.includes(post.status_copy) || needsAction.includes(post.status_caption)
+  }
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
@@ -63,7 +67,7 @@ export default function PostList({
           <div
             key={post.id}
             className={`bg-white rounded-xl border p-4 ${
-              needsAction.includes(post.status) ? 'border-yellow-200' : 'border-gray-100'
+              postNeedsAction(post) ? 'border-yellow-200' : 'border-gray-100'
             }`}
           >
             {editingPost?.id === post.id ? (
@@ -107,9 +111,9 @@ export default function PostList({
 
                 {/* Conteúdo */}
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
+                  {/* Cabeçalho: número, tipo, data */}
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
                     <span className="text-xs text-gray-400 font-medium">#{idx + 1}</span>
-                    <StatusBadge status={post.status} />
                     {post.post_type && (
                       <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
                         {postTypeLabels[post.post_type]}
@@ -121,10 +125,27 @@ export default function PostList({
                       </span>
                     )}
                   </div>
-                  {post.caption
-                    ? <ExpandableCaption text={post.caption} />
-                    : <p className="text-sm text-gray-400 italic">Sem legenda</p>
-                  }
+
+                  {/* Copy da arte */}
+                  <div className="mb-2">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Copy da arte</span>
+                      <StatusBadge status={post.status_copy} />
+                    </div>
+                    <ExpandableCaption text={post.copy_text || '—'} />
+                  </div>
+
+                  {/* Legenda */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Legenda</span>
+                      <StatusBadge status={post.status_caption} />
+                    </div>
+                    {post.caption
+                      ? <ExpandableCaption text={post.caption} />
+                      : <p className="text-sm text-gray-400 italic">Sem legenda</p>
+                    }
+                  </div>
                 </div>
 
                 {/* Ações */}
