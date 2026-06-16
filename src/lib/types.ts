@@ -9,6 +9,8 @@ export interface Client {
   id: string
   name: string
   logo_url: string | null
+  archived: boolean
+  archived_at: string | null
   created_at: string
 }
 

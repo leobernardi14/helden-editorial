@@ -53,7 +53,7 @@ export async function proxy(request: NextRequest) {
   if (pathname.startsWith('/agencia') || pathname.startsWith('/cliente')) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role')
+      .select('role, client_id')
       .eq('id', user.id)
       .single()
 
@@ -62,6 +62,19 @@ export async function proxy(request: NextRequest) {
     }
     if (pathname.startsWith('/cliente') && profile?.role !== 'cliente') {
       return NextResponse.redirect(new URL('/agencia', request.url))
+    }
+
+    // Bloqueia cliente arquivado: redireciona para /login sem apagar o usuário
+    if (pathname.startsWith('/cliente') && profile?.role === 'cliente' && profile.client_id) {
+      const { data: clientRow } = await supabase
+        .from('clients')
+        .select('archived')
+        .eq('id', profile.client_id)
+        .single()
+
+      if (clientRow?.archived) {
+        return NextResponse.redirect(new URL('/login', request.url))
+      }
     }
   }
 
