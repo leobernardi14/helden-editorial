@@ -28,7 +28,38 @@
 - [ ] **F1 — Migration SQL** — `archived BOOLEAN` + `archived_at TIMESTAMPTZ` em `clients`
 - [ ] **F2 — Tipos + Actions** — `Client` type, `archiveClientAction`, `unarchiveClientAction`
 - [ ] **F3 — Bloqueio de acesso** — proxy bloqueia cliente arquivado (redirect `/login`)
-- [ ] **F4 — UI agência** — Edit modal, botão Arquivar com confirmação, toggle "Ver arquivados", botão Desarquivar
+- [x] **F4 — UI agência** — Edit modal, botão Arquivar com confirmação, toggle "Ver arquivados", botão Desarquivar
+
+---
+
+## Feature: Fluxo de 2 fases — Copys → Arte
+
+### Modelo de dados
+
+Cada post tem **3 aprovações independentes** e **1 fase**:
+
+| Campo        | Tipo        | Default    | Quem avalia  |
+|-------------|-------------|-----------|--------------|
+| status_copy    | post_status | pendente  | cliente (fase copys) |
+| status_caption | post_status | pendente  | cliente (fase copys) |
+| status_art     | post_status | pendente  | cliente (fase arte)  |
+| fase           | TEXT        | 'copys'   | agência muda para 'arte' |
+
+### Regras de negócio
+
+- **Fase copys**: cliente vê e avalia copy + legenda. Arte mostra placeholder.
+- **Transição**: agência sobe a imagem e clica "Liberar arte" → `fase = 'arte'`
+- **Fase arte**: cliente vê imagem real e avalia status_art. Copys mostram status anterior.
+- **Progresso**: post "completo" na fase copys = status_copy ≠ pendente E status_caption ≠ pendente. Na fase arte = as 3 partes ≠ pendente.
+- **Banner de conclusão**: aparece quando todos os posts estão completos para a fase atual.
+
+### Sub-etapas
+
+- [ ] **G1 — Migration SQL** — status_art, fase em posts; fix CHECK constraint em approval_history
+- [ ] **G2 — Tipos + Actions** — Post type, ApprovalPart inclui 'art'; posts.ts, approvals.ts
+- [ ] **G3 — Agência: PostList + PostForm + ação "Liberar arte"**
+- [ ] **G4 — Cliente: PostCardCliente dois blocos fase-conscientes + ProgressoBanner**
+- [ ] **G5 — Atividades: part='art' visível no feed**
 
 ---
 
