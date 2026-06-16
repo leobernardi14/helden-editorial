@@ -23,6 +23,15 @@
 
 ---
 
+## Feature: Gestão de clientes — arquivamento (soft delete)
+
+- [ ] **F1 — Migration SQL** — `archived BOOLEAN` + `archived_at TIMESTAMPTZ` em `clients`
+- [ ] **F2 — Tipos + Actions** — `Client` type, `archiveClientAction`, `unarchiveClientAction`
+- [ ] **F3 — Bloqueio de acesso** — proxy bloqueia cliente arquivado (redirect `/login`)
+- [ ] **F4 — UI agência** — Edit modal, botão Arquivar com confirmação, toggle "Ver arquivados", botão Desarquivar
+
+---
+
 ## Para colocar em produção
 
 1. Criar projeto Supabase e rodar `supabase/migrations/001_initial.sql`
