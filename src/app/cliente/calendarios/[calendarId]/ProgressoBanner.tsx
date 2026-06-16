@@ -13,7 +13,10 @@ export default function ProgressoBanner({
   useEffect(() => { setPosts(initialPosts) }, [initialPosts])
 
   const total = posts.length
-  const done = posts.filter((p) => p.status !== 'pendente').length
+  // Post "avaliado" = copy E legenda ambas com resposta (≠ pendente)
+  const done = posts.filter(
+    (p) => p.status_copy !== 'pendente' && p.status_caption !== 'pendente'
+  ).length
   const allDone = total > 0 && done === total
   const progress = total > 0 ? Math.round((done / total) * 100) : 0
 
