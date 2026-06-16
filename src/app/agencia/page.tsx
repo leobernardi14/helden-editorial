@@ -3,8 +3,16 @@ import Link from 'next/link'
 import { CalendarWithStats, Client } from '@/lib/types'
 import StatusBadge from '@/components/StatusBadge'
 import NewClientButton from './clientes/NewClientButton'
+import ClientActions from './clientes/ClientActions'
 
-export default async function AgenciaDashboard() {
+export default async function AgenciaDashboard({
+  searchParams,
+}: {
+  searchParams: Promise<{ arquivados?: string }>
+}) {
+  const { arquivados } = await searchParams
+  const showArchived = arquivados === '1'
+
   const supabase = await createClient()
 
   // Atividades recentes (últimas 5)
@@ -17,6 +25,7 @@ export default async function AgenciaDashboard() {
   const { data: clients } = await supabase
     .from('clients')
     .select('*')
+    .eq('archived', showArchived)
     .order('name')
 
   // Para cada cliente, busca os calendários com contagens de status dos posts
@@ -24,10 +33,7 @@ export default async function AgenciaDashboard() {
     (clients ?? []).map(async (client: Client) => {
       const { data: calendars } = await supabase
         .from('calendars')
-        .select(`
-          *,
-          posts(status)
-        `)
+        .select(`*, posts(status)`)
         .eq('client_id', client.id)
         .order('created_at', { ascending: false })
 
@@ -46,6 +52,12 @@ export default async function AgenciaDashboard() {
       return { ...client, calendars: enriched }
     })
   )
+
+  // Conta arquivados para exibir no toggle
+  const { count: archivedCount } = await supabase
+    .from('clients')
+    .select('id', { count: 'exact', head: true })
+    .eq('archived', true)
 
   const actionDot: Record<string, string> = {
     aprovado: 'bg-green-500', reprovado: 'bg-red-500', ajuste: 'bg-yellow-500',
@@ -90,30 +102,71 @@ export default async function AgenciaDashboard() {
 
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Clientes</h1>
-          <p className="text-gray-500 text-sm mt-0.5">{clientsWithData.length} cliente{clientsWithData.length !== 1 ? 's' : ''} cadastrado{clientsWithData.length !== 1 ? 's' : ''}</p>
+          <h1 className="text-2xl font-bold text-gray-900">
+            {showArchived ? 'Clientes arquivados' : 'Clientes'}
+          </h1>
+          <p className="text-gray-500 text-sm mt-0.5">
+            {clientsWithData.length} cliente{clientsWithData.length !== 1 ? 's' : ''}
+            {showArchived ? ' arquivado' : ' ativo'}{clientsWithData.length !== 1 ? 's' : ''}
+          </p>
         </div>
-        <NewClientButton />
+        <div className="flex items-center gap-3">
+          {showArchived ? (
+            <Link
+              href="/agencia"
+              className="text-sm text-gray-500 hover:text-black border border-gray-200 rounded-lg px-3 py-1.5 transition-colors"
+            >
+              ← Voltar aos ativos
+            </Link>
+          ) : (
+            <>
+              {(archivedCount ?? 0) > 0 && (
+                <Link
+                  href="/agencia?arquivados=1"
+                  className="text-sm text-gray-500 hover:text-black border border-gray-200 rounded-lg px-3 py-1.5 transition-colors"
+                >
+                  Ver arquivados ({archivedCount})
+                </Link>
+              )}
+              <NewClientButton />
+            </>
+          )}
+        </div>
       </div>
 
       {clientsWithData.length === 0 && (
         <div className="text-center py-20 text-gray-400">
-          <p className="text-lg font-medium">Nenhum cliente ainda</p>
-          <p className="text-sm mt-1">Clique em "Novo cliente" para começar.</p>
+          <p className="text-lg font-medium">
+            {showArchived ? 'Nenhum cliente arquivado' : 'Nenhum cliente ainda'}
+          </p>
+          {!showArchived && <p className="text-sm mt-1">Clique em "Novo cliente" para começar.</p>}
         </div>
       )}
 
       <div className="space-y-4">
         {clientsWithData.map((client) => (
-          <div key={client.id} className="bg-white rounded-xl border border-gray-100 p-5">
+          <div
+            key={client.id}
+            className={`bg-white rounded-xl border p-5 ${client.archived ? 'border-gray-200 opacity-80' : 'border-gray-100'}`}
+          >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="font-semibold text-gray-900 text-lg">{client.name}</h2>
-              <Link
-                href={`/agencia/clientes/${client.id}/novo-calendario`}
-                className="text-sm text-gray-500 hover:text-black border border-gray-200 rounded-lg px-3 py-1.5 transition-colors"
-              >
-                + Calendário
-              </Link>
+              <div className="flex items-center gap-3">
+                <h2 className="font-semibold text-gray-900 text-lg">{client.name}</h2>
+                {client.archived && (
+                  <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Arquivado</span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                {!client.archived && (
+                  <Link
+                    href={`/agencia/clientes/${client.id}/novo-calendario`}
+                    className="text-sm text-gray-500 hover:text-black border border-gray-200 rounded-lg px-3 py-1.5 transition-colors"
+                  >
+                    + Calendário
+                  </Link>
+                )}
+                <ClientActions client={client} />
+              </div>
             </div>
 
             {client.calendars.length === 0 && (
