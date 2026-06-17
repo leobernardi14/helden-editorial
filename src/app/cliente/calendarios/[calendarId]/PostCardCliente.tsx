@@ -215,13 +215,14 @@ export default function PostCardCliente({
                     overflow+borderRadius inline no wrapper garante o clip mesmo
                     quando o card pai tem overflow:hidden — independe de classe Tailwind
                   */}
-                  <div style={{ width: 224, height: 224, borderRadius: '0.75rem', overflow: 'hidden', background: '#f9fafb' }}>
+                  <div style={{ width: 224, height: 224, background: '#f9fafb', borderRadius: '0.75rem' }}>
                     <Image
                       src={src}
                       alt={alt}
                       width={224}
                       height={224}
                       className="w-full h-full object-contain transition-opacity duration-200 group-hover:opacity-90"
+                      style={{ clipPath: 'inset(0 round 0.75rem)' }}
                     />
                   </div>
                   {/* Dica visual de lupa */}
