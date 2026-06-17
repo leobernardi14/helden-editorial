@@ -121,9 +121,13 @@ export default function PostList({
                       </div>
                     </button>
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400 text-[10px] text-center px-1 leading-tight">
-                      Arte em<br/>desenvolvimento
-                    </div>
+                    <Image
+                      src="/arte-em-desenvolvimento.png"
+                      alt="Arte em desenvolvimento"
+                      width={96}
+                      height={96}
+                      className="w-full h-full object-contain"
+                    />
                   )}
                 </div>
 

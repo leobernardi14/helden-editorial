@@ -212,19 +212,23 @@ export default function PostCardCliente({
                   alt={`Post ${index + 1}`}
                   width={256}
                   height={256}
-                  className="w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                  className="w-full object-contain rounded-lg transition-transform duration-200 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200 flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200 flex items-center justify-center rounded-lg">
                   <span className="text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 px-2 py-1 rounded">
                     Ampliar
                   </span>
                 </div>
               </button>
             ) : (
-              <div className="w-full sm:w-64 h-32 bg-gray-100 rounded-lg flex flex-col items-center justify-center gap-1 text-gray-400">
-                <span className="text-2xl">🎨</span>
-                <span className="text-xs font-medium">Arte em desenvolvimento</span>
-                <span className="text-xs text-gray-400">A arte será liberada após aprovação das copys</span>
+              <div className="w-full sm:w-64 rounded-lg overflow-hidden">
+                <Image
+                  src="/arte-em-desenvolvimento.png"
+                  alt="Arte em desenvolvimento"
+                  width={256}
+                  height={256}
+                  className="w-full object-contain"
+                />
               </div>
             )}
           </div>
