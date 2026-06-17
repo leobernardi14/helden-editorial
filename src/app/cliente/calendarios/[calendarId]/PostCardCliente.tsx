@@ -208,17 +208,22 @@ export default function PostCardCliente({
                 <button
                   type="button"
                   onClick={() => setLightboxOpen(true)}
-                  className="group block relative cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-black rounded-xl"
+                  className="group block relative cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-black"
                   aria-label="Ampliar imagem"
                 >
-                  <Image
-                    src={src}
-                    alt={alt}
-                    width={224}
-                    height={224}
-                    className="block w-56 h-56 object-contain bg-gray-50 rounded-xl transition-opacity duration-200 group-hover:opacity-90"
-                    style={{ borderRadius: '0.75rem' }}
-                  />
+                  {/*
+                    overflow+borderRadius inline no wrapper garante o clip mesmo
+                    quando o card pai tem overflow:hidden — independe de classe Tailwind
+                  */}
+                  <div style={{ width: 224, height: 224, borderRadius: '0.75rem', overflow: 'hidden', background: '#f9fafb' }}>
+                    <Image
+                      src={src}
+                      alt={alt}
+                      width={224}
+                      height={224}
+                      className="w-full h-full object-contain transition-opacity duration-200 group-hover:opacity-90"
+                    />
+                  </div>
                   {/* Dica visual de lupa */}
                   <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     <span className="bg-black/60 text-white text-[10px] px-2 py-1 rounded-full flex items-center gap-1">
