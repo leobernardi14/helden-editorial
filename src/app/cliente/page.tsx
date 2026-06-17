@@ -1,23 +1,24 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import StatusBadge from '@/components/StatusBadge'
-import { Calendar } from '@/lib/types'
+import { Calendar, Post } from '@/lib/types'
+import { postCompleto } from '@/lib/postProgress'
 
 export default async function ClienteDashboard() {
   const supabase = await createClient()
 
   const { data: calendars } = await supabase
     .from('calendars')
-    .select(`*, posts(status)`)
+    .select(`*, posts(id, fase, status_copy, status_caption, status_art)`)
     .in('status', ['enviado', 'concluido'])
     .order('created_at', { ascending: false })
 
-  type CalWithPosts = Calendar & { posts: { status: string }[] }
+  type CalWithPosts = Calendar & { posts: Pick<Post, 'id' | 'fase' | 'status_copy' | 'status_caption' | 'status_art'>[] }
 
   const enriched = (calendars as CalWithPosts[] ?? []).map((cal) => {
     const posts = cal.posts ?? []
     const total = posts.length
-    const done = posts.filter((p) => p.status !== 'pendente').length
+    const done = posts.filter((p) => postCompleto(p as Post)).length
     return { ...cal, total, done }
   })
 

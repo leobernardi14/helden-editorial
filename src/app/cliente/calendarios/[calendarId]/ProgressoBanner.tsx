@@ -3,14 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Post } from '@/lib/types'
 
-// Um post está "completo" quando todas as partes da fase atual foram avaliadas:
-//   - fase 'copys': status_copy ≠ pendente E status_caption ≠ pendente
-//   - fase 'arte':  as anteriores E status_art ≠ pendente
-function postCompleto(p: Post): boolean {
-  const copysFeitas = p.status_copy !== 'pendente' && p.status_caption !== 'pendente'
-  if (p.fase === 'copys') return copysFeitas
-  return copysFeitas && p.status_art !== 'pendente'
-}
+import { postCompleto } from '@/lib/postProgress'
 
 export default function ProgressoBanner({ posts: initialPosts }: { posts: Post[] }) {
   const [posts, setPosts] = useState(initialPosts)
