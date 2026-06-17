@@ -67,6 +67,10 @@ export default function LoginForm({ action }: { action: LoginAction }) {
       >
         {loading ? 'Entrando…' : 'Entrar'}
       </button>
+
+      <p className="text-center text-xs text-gray-400 pt-1">
+        Esqueceu sua senha? Entre em contato com a Helden.
+      </p>
     </form>
   )
 }

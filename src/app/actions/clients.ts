@@ -82,3 +82,42 @@ export async function unarchiveClientAction(clientId: string) {
   revalidatePath('/agencia')
   return { success: true }
 }
+
+export async function resetClientPasswordAction(formData: FormData) {
+  const supabase = await createClient()
+
+  // Verificação de role no servidor — nunca confiar só no front
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Não autenticado.' }
+
+  const { data: callerProfile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (callerProfile?.role !== 'agencia') return { error: 'Sem permissão.' }
+
+  const clientId  = formData.get('client_id') as string
+  const password  = formData.get('password') as string
+
+  if (!clientId || !password) return { error: 'Dados inválidos.' }
+  if (password.length < 8) return { error: 'A senha deve ter pelo menos 8 caracteres.' }
+
+  // Busca o auth user_id do cliente via tabela profiles
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('client_id', clientId)
+    .eq('role', 'cliente')
+    .single()
+
+  if (!profile) return { error: 'Usuário cliente não encontrado.' }
+
+  const admin = createServiceClient()
+  const { error: authErr } = await admin.auth.admin.updateUserById(profile.id, { password })
+
+  if (authErr) return { error: authErr.message }
+
+  return { success: true }
+}

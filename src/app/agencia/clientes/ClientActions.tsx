@@ -2,14 +2,17 @@
 
 import { useState } from 'react'
 import { Client } from '@/lib/types'
-import { updateClientAction, archiveClientAction, unarchiveClientAction } from '@/app/actions/clients'
+import { updateClientAction, archiveClientAction, unarchiveClientAction, resetClientPasswordAction } from '@/app/actions/clients'
 
 export default function ClientActions({ client }: { client: Client }) {
-  const [editOpen, setEditOpen]       = useState(false)
-  const [confirmOpen, setConfirmOpen] = useState(false)
-  const [name, setName]               = useState(client.name)
-  const [loading, setLoading]         = useState(false)
-  const [error, setError]             = useState<string | null>(null)
+  const [editOpen, setEditOpen]         = useState(false)
+  const [confirmOpen, setConfirmOpen]   = useState(false)
+  const [resetOpen, setResetOpen]       = useState(false)
+  const [name, setName]                 = useState(client.name)
+  const [newPassword, setNewPassword]   = useState('')
+  const [resetDone, setResetDone]       = useState(false)
+  const [loading, setLoading]           = useState(false)
+  const [error, setError]               = useState<string | null>(null)
 
   async function handleEdit(e: React.FormEvent) {
     e.preventDefault()
@@ -40,6 +43,26 @@ export default function ClientActions({ client }: { client: Client }) {
     if (result?.error) { setError(result.error) }
   }
 
+  async function handleResetPassword(e: React.FormEvent) {
+    e.preventDefault()
+    setError(null)
+    setLoading(true)
+    const fd = new FormData()
+    fd.append('client_id', client.id)
+    fd.append('password', newPassword)
+    const result = await resetClientPasswordAction(fd)
+    setLoading(false)
+    if (result?.error) { setError(result.error); return }
+    setResetDone(true)
+  }
+
+  function openReset() {
+    setNewPassword('')
+    setResetDone(false)
+    setError(null)
+    setResetOpen(true)
+  }
+
   return (
     <>
       <div className="flex items-center gap-2">
@@ -48,6 +71,12 @@ export default function ClientActions({ client }: { client: Client }) {
           className="text-xs text-gray-500 hover:text-black border border-gray-200 rounded-md px-2 py-1 transition-colors"
         >
           Editar
+        </button>
+        <button
+          onClick={openReset}
+          className="text-xs text-blue-600 hover:text-blue-800 border border-blue-200 rounded-md px-2 py-1 transition-colors"
+        >
+          Redefinir senha
         </button>
         {client.archived ? (
           <button
@@ -136,6 +165,74 @@ export default function ClientActions({ client }: { client: Client }) {
                 {loading ? 'Arquivando…' : 'Sim, arquivar'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* Modal de redefinição de senha */}
+      {resetOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-1">Redefinir senha</h2>
+            <p className="text-sm text-gray-500 mb-4">
+              Cliente: <span className="font-medium text-gray-800">{client.name}</span>
+            </p>
+
+            {resetDone ? (
+              <div>
+                <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 mb-4">
+                  <p className="text-sm font-semibold text-green-800 mb-1">Senha redefinida com sucesso!</p>
+                  <p className="text-sm text-green-700">
+                    Repasse a nova senha ao cliente por um canal seguro (WhatsApp, e-mail, etc.). Ele poderá alterá-la depois se desejar.
+                  </p>
+                </div>
+                <button
+                  onClick={() => { setResetOpen(false); setResetDone(false) }}
+                  className="w-full bg-black text-white text-sm font-medium rounded-lg py-2.5 hover:bg-gray-800 transition-colors"
+                >
+                  Fechar
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleResetPassword} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Nova senha <span className="text-gray-400 font-normal">(mín. 8 caracteres)</span>
+                  </label>
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    required
+                    minLength={8}
+                    className="input"
+                    placeholder="••••••••"
+                    autoComplete="new-password"
+                  />
+                </div>
+                {error && (
+                  <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">{error}</p>
+                )}
+                <p className="text-xs text-gray-400">
+                  Tem certeza? A senha atual do cliente será substituída imediatamente.
+                </p>
+                <div className="flex gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setResetOpen(false)}
+                    className="flex-1 text-sm text-gray-600 border border-gray-200 rounded-lg py-2.5 hover:bg-gray-50 transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loading || newPassword.length < 8}
+                    className="flex-1 bg-black text-white text-sm font-medium rounded-lg py-2.5 hover:bg-gray-800 disabled:opacity-50 transition-colors"
+                  >
+                    {loading ? 'Redefinindo…' : 'Confirmar reset'}
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}
