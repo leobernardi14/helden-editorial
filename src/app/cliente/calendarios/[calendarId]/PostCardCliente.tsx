@@ -221,14 +221,22 @@ export default function PostCardCliente({
                 </div>
               </button>
             ) : (
-              <div className="w-full sm:w-64 rounded-lg overflow-hidden">
-                <Image
-                  src="/arte-em-desenvolvimento.png"
-                  alt="Arte em desenvolvimento"
-                  width={256}
-                  height={256}
-                  className="w-full object-contain"
-                />
+              <div className="w-full sm:w-64">
+                <div className="rounded-lg overflow-hidden">
+                  <Image
+                    src="/arte-em-desenvolvimento.png"
+                    alt="Arte em desenvolvimento"
+                    width={256}
+                    height={256}
+                    className="w-full object-contain"
+                  />
+                </div>
+                <p className="text-xs text-gray-400 mt-1.5">
+                  {post.status_copy === 'aprovado' && post.status_caption === 'aprovado'
+                    ? 'Copys aprovadas! A arte será enviada para sua aprovação em breve.'
+                    : 'Aprove as copys acima para que nossa equipe inicie a arte.'
+                  }
+                </p>
               </div>
             )}
           </div>
@@ -275,15 +283,6 @@ export default function PostCardCliente({
           </div>
         )}
 
-        {/* Fase copys: info sobre arte ainda não liberada */}
-        {post.fase === 'copys' && (
-          <div className="px-4 pb-4">
-            <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-center">
-              <p className="text-xs text-gray-500 font-medium">Arte em desenvolvimento</p>
-              <p className="text-xs text-gray-400 mt-0.5">A arte será liberada para aprovação após as copys serem avaliadas.</p>
-            </div>
-          </div>
-        )}
       </div>
 
       {lightboxOpen && post.image_url && (
