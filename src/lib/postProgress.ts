@@ -5,3 +5,22 @@ export function postCompleto(p: Post): boolean {
   if (p.fase === 'copys') return copysFeitas
   return copysFeitas && p.status_art !== 'pendente'
 }
+
+export function postProntoParaProgramar(p: Post): boolean {
+  return (
+    p.fase === 'arte' &&
+    p.status_copy === 'aprovado' &&
+    p.status_caption === 'aprovado' &&
+    p.status_art === 'aprovado'
+  )
+}
+
+export function faseBadge(p: Post): { label: string; cls: string } {
+  if (postProntoParaProgramar(p)) {
+    return { label: 'Programar Post', cls: 'bg-green-100 text-green-700' }
+  }
+  if (p.fase === 'arte') {
+    return { label: 'Fase: Arte', cls: 'bg-purple-100 text-purple-700' }
+  }
+  return { label: 'Fase: Copys', cls: 'bg-blue-100 text-blue-700' }
+}

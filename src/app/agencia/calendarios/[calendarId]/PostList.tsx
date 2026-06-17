@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { Post, CalendarStatus, PostStatus } from '@/lib/types'
+import { faseBadge } from '@/lib/postProgress'
 import StatusBadge from '@/components/StatusBadge'
 import PostForm from './PostForm'
 import PostHistoryModal from './PostHistoryModal'
@@ -137,13 +138,11 @@ export default function PostList({
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
                     <span className="text-xs text-gray-400 font-medium">#{idx + 1}</span>
                     {/* Fase badge */}
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                      post.fase === 'arte'
-                        ? 'bg-purple-100 text-purple-700'
-                        : 'bg-blue-100 text-blue-700'
-                    }`}>
-                      {post.fase === 'arte' ? 'Fase: Arte' : 'Fase: Copys'}
-                    </span>
+                    {(() => { const b = faseBadge(post); return (
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${b.cls}`}>
+                        {b.label}
+                      </span>
+                    ) })()}
                     {post.post_type && (
                       <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
                         {postTypeLabels[post.post_type]}
