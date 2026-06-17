@@ -139,7 +139,7 @@ function ApprovalBlock({
               <button
                 type="submit"
                 disabled={loading || !canSubmit}
-                className="w-full bg-black text-white text-sm font-medium py-2.5 rounded-lg hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="w-full bg-helden-yellow text-black text-sm font-medium py-2.5 rounded-lg hover:brightness-90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? 'Enviando…' : `Confirmar: ${actionConfig[selectedAction].label}`}
               </button>

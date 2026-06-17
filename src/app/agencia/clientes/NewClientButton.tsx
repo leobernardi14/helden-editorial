@@ -27,7 +27,7 @@ export default function NewClientButton() {
     <>
       <button
         onClick={() => { setOpen(true); setError(null) }}
-        className="bg-black text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors"
+        className="bg-helden-yellow text-black text-sm font-medium px-4 py-2 rounded-lg hover:brightness-90 transition-colors"
       >
         + Novo cliente
       </button>
@@ -74,7 +74,7 @@ export default function NewClientButton() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 bg-black text-white text-sm font-medium rounded-lg py-2.5 hover:bg-gray-800 disabled:opacity-50 transition-colors"
+                  className="flex-1 bg-helden-yellow text-black text-sm font-medium rounded-lg py-2.5 hover:brightness-90 disabled:opacity-50 transition-colors"
                 >
                   {loading ? 'Criando…' : 'Criar cliente'}
                 </button>

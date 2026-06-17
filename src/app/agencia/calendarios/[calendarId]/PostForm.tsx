@@ -201,7 +201,7 @@ export default function PostForm({
         <button
           type="submit"
           disabled={loading}
-          className="flex-1 bg-black text-white text-sm font-medium rounded-lg py-2.5 hover:bg-gray-800 disabled:opacity-50 transition-colors"
+          className="flex-1 bg-helden-yellow text-black text-sm font-medium rounded-lg py-2.5 hover:brightness-90 disabled:opacity-50 transition-colors"
         >
           {uploading ? 'Aguarde o upload…' : saving ? 'Salvando…' : post ? 'Salvar alterações' : 'Adicionar post'}
         </button>

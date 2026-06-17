@@ -114,7 +114,7 @@ export default function ReleaseArtForm({
         <button
           type="submit"
           disabled={loading || !uploadedUrl}
-          className="flex-1 bg-black text-white text-sm font-medium rounded-lg py-2.5 hover:bg-gray-800 disabled:opacity-40 transition-colors"
+          className="flex-1 bg-helden-yellow text-black text-sm font-medium rounded-lg py-2.5 hover:brightness-90 disabled:opacity-40 transition-colors"
         >
           {uploading ? 'Aguarde o upload…' : saving ? 'Liberando…' : 'Liberar arte para aprovação'}
         </button>
