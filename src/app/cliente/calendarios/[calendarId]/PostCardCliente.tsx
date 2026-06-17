@@ -208,26 +208,25 @@ export default function PostCardCliente({
                 <button
                   type="button"
                   onClick={() => setLightboxOpen(true)}
-                  className="group block w-56 h-56 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-black rounded-xl"
+                  className="group block relative cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-black rounded-xl"
                   aria-label="Ampliar imagem"
                 >
-                  {/* div interno garante o clip rounded em filhos absolute (fill) */}
-                  <div className="relative w-full h-full rounded-xl overflow-hidden bg-gray-50">
-                    <Image
-                      src={src}
-                      alt={alt}
-                      fill
-                      className="object-contain transition-opacity duration-200 group-hover:opacity-90"
-                    />
-                    {/* Dica visual de lupa */}
-                    <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                      <span className="bg-black/60 text-white text-[10px] px-2 py-1 rounded-full flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-                        </svg>
-                        Ampliar
-                      </span>
-                    </div>
+                  <Image
+                    src={src}
+                    alt={alt}
+                    width={224}
+                    height={224}
+                    className="block w-56 h-56 object-contain bg-gray-50 rounded-xl transition-opacity duration-200 group-hover:opacity-90"
+                    style={{ borderRadius: '0.75rem' }}
+                  />
+                  {/* Dica visual de lupa */}
+                  <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <span className="bg-black/60 text-white text-[10px] px-2 py-1 rounded-full flex items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                      </svg>
+                      Ampliar
+                    </span>
                   </div>
                 </button>
                 {!isReal && (
