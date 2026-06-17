@@ -198,48 +198,47 @@ export default function PostCardCliente({
             )}
           </div>
 
-          {/* Arte: imagem real ou placeholder */}
-          <div className="mb-4">
-            {post.fase === 'arte' && post.image_url ? (
-              <button
-                type="button"
-                onClick={() => setLightboxOpen(true)}
-                className="block group relative w-full sm:w-64 rounded-lg overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-black"
-                aria-label="Ampliar imagem"
-              >
-                <Image
-                  src={post.image_url}
-                  alt={`Post ${index + 1}`}
-                  width={256}
-                  height={256}
-                  className="w-full object-contain rounded-lg transition-transform duration-200 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200 flex items-center justify-center rounded-lg">
-                  <span className="text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity bg-black/60 px-2 py-1 rounded">
-                    Ampliar
-                  </span>
-                </div>
-              </button>
-            ) : (
-              <div className="w-full sm:w-64">
-                <div className="rounded-lg overflow-hidden">
+          {/* Arte: imagem real ou placeholder — ambas clicáveis */}
+          {(() => {
+            const isReal = post.fase === 'arte' && !!post.image_url
+            const src    = isReal ? post.image_url! : '/arte-em-desenvolvimento.png'
+            const alt    = isReal ? `Post ${index + 1}` : 'Arte em desenvolvimento'
+            return (
+              <div className="mb-4">
+                <button
+                  type="button"
+                  onClick={() => setLightboxOpen(true)}
+                  className="block group relative w-full max-w-sm rounded-xl overflow-hidden cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-black"
+                  aria-label="Ampliar imagem"
+                >
                   <Image
-                    src="/arte-em-desenvolvimento.png"
-                    alt="Arte em desenvolvimento"
-                    width={256}
-                    height={256}
-                    className="w-full object-contain"
+                    src={src}
+                    alt={alt}
+                    width={400}
+                    height={400}
+                    className="w-full max-h-72 object-contain bg-gray-50 transition-opacity duration-200 group-hover:opacity-90"
                   />
-                </div>
-                <p className="text-xs text-gray-400 mt-1.5">
-                  {post.status_copy === 'aprovado' && post.status_caption === 'aprovado'
-                    ? 'Copys aprovadas! A arte será enviada para sua aprovação em breve.'
-                    : 'Aprove as copys abaixo para que nossa equipe inicie a arte.'
-                  }
-                </p>
+                  {/* Dica visual de lupa */}
+                  <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <span className="bg-black/60 text-white text-[10px] px-2 py-1 rounded-full flex items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+                      </svg>
+                      Ampliar
+                    </span>
+                  </div>
+                </button>
+                {!isReal && (
+                  <p className="text-xs text-gray-400 mt-1.5">
+                    {post.status_copy === 'aprovado' && post.status_caption === 'aprovado'
+                      ? 'Copys aprovadas! A arte será enviada para sua aprovação em breve.'
+                      : 'Aprove as copys abaixo para que nossa equipe inicie a arte.'
+                    }
+                  </p>
+                )}
               </div>
-            )}
-          </div>
+            )
+          })()}
         </div>
 
         {/* Bloco Copy da arte */}
@@ -285,10 +284,10 @@ export default function PostCardCliente({
 
       </div>
 
-      {lightboxOpen && post.image_url && (
+      {lightboxOpen && (
         <ImageLightbox
-          src={post.image_url}
-          alt={`Post ${index + 1}`}
+          src={(post.fase === 'arte' && post.image_url) ? post.image_url : '/arte-em-desenvolvimento.png'}
+          alt={(post.fase === 'arte' && post.image_url) ? `Post ${index + 1}` : 'Arte em desenvolvimento'}
           onClose={() => setLightboxOpen(false)}
         />
       )}
