@@ -208,15 +208,14 @@ export default function PostCardCliente({
                 <button
                   type="button"
                   onClick={() => setLightboxOpen(true)}
-                  className="block group relative w-full max-w-sm rounded-xl overflow-hidden cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-black"
+                  className="block group relative w-56 h-56 rounded-xl overflow-hidden cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-black"
                   aria-label="Ampliar imagem"
                 >
                   <Image
                     src={src}
                     alt={alt}
-                    width={400}
-                    height={400}
-                    className="w-full max-h-72 object-contain bg-gray-50 transition-opacity duration-200 group-hover:opacity-90"
+                    fill
+                    className="object-contain rounded-xl bg-gray-50 transition-opacity duration-200 group-hover:opacity-90"
                   />
                   {/* Dica visual de lupa */}
                   <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
