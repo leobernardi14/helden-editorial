@@ -17,7 +17,7 @@ export function postProntoParaProgramar(p: Post): boolean {
 
 export function faseBadge(p: Post): { label: string; cls: string } {
   if (postProntoParaProgramar(p)) {
-    return { label: 'Programar Post', cls: 'bg-green-100 text-green-700' }
+    return { label: 'Programar Post', cls: 'bg-helden-yellow text-black' }
   }
   if (p.fase === 'arte') {
     return { label: 'Fase: Arte', cls: 'bg-purple-100 text-purple-700' }

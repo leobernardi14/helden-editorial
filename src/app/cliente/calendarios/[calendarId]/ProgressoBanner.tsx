@@ -42,7 +42,7 @@ export default function ProgressoBanner({ posts: initialPosts }: { posts: Post[]
         </div>
         <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
           <div
-            className="h-full bg-black rounded-full transition-all duration-500"
+            className="h-full bg-helden-yellow rounded-full transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>

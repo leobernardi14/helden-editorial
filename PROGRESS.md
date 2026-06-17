@@ -63,6 +63,17 @@ Cada post tem **3 aprovações independentes** e **1 fase**:
 
 ---
 
+## Feature: Identidade visual Helden (brand refresh)
+
+- [x] **H1 — Paleta** — `#000000` preto da marca + `#f4b812` amarelo da marca em variáveis CSS/Tailwind v4
+- [x] **H2 — Tipografia** — Inter via next/font, hierarquia de títulos revisada
+- [x] **H3 — Cabeçalho** — fundo preto, logo clara nos dois lados (agência + cliente); logo escura na tela de login
+- [x] **H4 — Barras de progresso** — preenchimento amarelo da marca (fundo cinza neutro)
+- [x] **H5 — Badge "Programar Post"** — amarelo da marca com texto preto
+- [x] **H6 — Acessibilidade** — amarelo nunca com texto branco; botões primários preto/branco mantidos
+
+---
+
 ## Para colocar em produção
 
 1. Criar projeto Supabase e rodar `supabase/migrations/001_initial.sql`

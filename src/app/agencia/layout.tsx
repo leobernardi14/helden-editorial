@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { logout } from '@/app/actions/auth'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default async function AgenciaLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -18,20 +19,29 @@ export default async function AgenciaLayout({ children }: { children: React.Reac
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
+      <header className="bg-black sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 bg-black rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xs">H</span>
-              </div>
-              <span className="font-semibold text-gray-900 text-sm">Helden</span>
-            </div>
+          <div className="flex items-center gap-5">
+            <Link href="/agencia" className="shrink-0">
+              <Image
+                src="/logo-helden-claro.png"
+                alt="Helden"
+                width={89}
+                height={36}
+                priority
+              />
+            </Link>
             <nav className="flex items-center gap-1">
-              <Link href="/agencia" className="text-sm text-gray-600 hover:text-black px-2 py-1 rounded-md hover:bg-gray-100 transition-colors">
+              <Link
+                href="/agencia"
+                className="text-sm text-white/70 hover:text-white px-3 py-1.5 rounded-md hover:bg-white/10 transition-colors"
+              >
                 Dashboard
               </Link>
-              <Link href="/agencia/atividades" className="relative text-sm text-gray-600 hover:text-black px-2 py-1 rounded-md hover:bg-gray-100 transition-colors">
+              <Link
+                href="/agencia/atividades"
+                className="relative text-sm text-white/70 hover:text-white px-3 py-1.5 rounded-md hover:bg-white/10 transition-colors"
+              >
                 Atividades
                 {pendingCount > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
@@ -42,9 +52,12 @@ export default async function AgenciaLayout({ children }: { children: React.Reac
             </nav>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-600 hidden sm:block">{profile?.full_name}</span>
+            <span className="text-sm text-white/60 hidden sm:block">{profile?.full_name}</span>
             <form action={logout}>
-              <button type="submit" className="text-sm text-gray-500 hover:text-gray-900 transition-colors">
+              <button
+                type="submit"
+                className="text-sm text-white/60 hover:text-white transition-colors"
+              >
                 Sair
               </button>
             </form>

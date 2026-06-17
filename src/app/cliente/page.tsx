@@ -61,7 +61,7 @@ export default async function ClienteDashboard() {
                   </div>
                   <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-black rounded-full transition-all"
+                      className="h-full bg-helden-yellow rounded-full transition-all"
                       style={{ width: `${progress}%` }}
                     />
                   </div>
