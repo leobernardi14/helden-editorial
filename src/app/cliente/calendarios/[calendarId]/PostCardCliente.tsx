@@ -234,7 +234,7 @@ export default function PostCardCliente({
                 <p className="text-xs text-gray-400 mt-1.5">
                   {post.status_copy === 'aprovado' && post.status_caption === 'aprovado'
                     ? 'Copys aprovadas! A arte será enviada para sua aprovação em breve.'
-                    : 'Aprove as copys acima para que nossa equipe inicie a arte.'
+                    : 'Aprove as copys abaixo para que nossa equipe inicie a arte.'
                   }
                 </p>
               </div>
