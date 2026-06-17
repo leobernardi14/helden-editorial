@@ -65,10 +65,7 @@ export interface ApprovalHistory {
 // Tipos com agregações
 export interface CalendarWithStats extends Calendar {
   total_posts: number
-  approved: number
-  reproved: number
-  adjustment: number
-  pending: number
+  done: number        // posts com todas as partes da fase atual avaliadas
 }
 
 export interface ClientWithCalendars extends Client {

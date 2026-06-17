@@ -1,9 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import { CalendarWithStats, Client } from '@/lib/types'
+import { CalendarWithStats, Client, Post } from '@/lib/types'
 import StatusBadge from '@/components/StatusBadge'
 import NewClientButton from './clientes/NewClientButton'
 import ClientActions from './clientes/ClientActions'
+import { postCompleto } from '@/lib/postProgress'
 
 export default async function AgenciaDashboard({
   searchParams,
@@ -33,19 +34,16 @@ export default async function AgenciaDashboard({
     (clients ?? []).map(async (client: Client) => {
       const { data: calendars } = await supabase
         .from('calendars')
-        .select(`*, posts(status)`)
+        .select(`*, posts(id, fase, status_copy, status_caption, status_art)`)
         .eq('client_id', client.id)
         .order('created_at', { ascending: false })
 
-      const enriched = (calendars ?? []).map((cal: { posts?: { status: string }[] } & Record<string, unknown>) => {
+      const enriched = (calendars ?? []).map((cal: { posts?: Pick<Post, 'id' | 'fase' | 'status_copy' | 'status_caption' | 'status_art'>[] } & Record<string, unknown>) => {
         const posts = cal.posts ?? []
         return {
           ...cal,
           total_posts: posts.length,
-          approved: posts.filter((p) => p.status === 'aprovado').length,
-          reproved: posts.filter((p) => p.status === 'reprovado').length,
-          adjustment: posts.filter((p) => p.status === 'ajuste').length,
-          pending: posts.filter((p) => p.status === 'pendente').length,
+          done: posts.filter((p) => postCompleto(p as Post)).length,
         } as CalendarWithStats
       })
 
@@ -189,12 +187,12 @@ export default async function AgenciaDashboard({
                   <div className="flex items-center gap-3 ml-3 shrink-0 text-xs text-gray-500">
                     {cal.total_posts > 0 ? (
                       <>
-                        <span className="text-green-600 font-medium">{cal.approved} ✓</span>
-                        {cal.adjustment > 0 && <span className="text-yellow-600 font-medium">{cal.adjustment} ajuste{cal.adjustment > 1 ? 's' : ''}</span>}
-                        {cal.reproved > 0 && <span className="text-red-600 font-medium">{cal.reproved} reprov.</span>}
-                        {cal.pending > 0 && <span className="text-gray-400">{cal.pending} pend.</span>}
-                        <span className="text-gray-300">|</span>
-                        <span>{cal.total_posts} posts</span>
+                        <span className={cal.done === cal.total_posts ? 'text-green-600 font-medium' : ''}>
+                          {cal.done} de {cal.total_posts} completos
+                        </span>
+                        {cal.done === cal.total_posts && (
+                          <span className="text-green-600">✓</span>
+                        )}
                       </>
                     ) : (
                       <span>Sem posts</span>
