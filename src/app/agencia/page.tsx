@@ -4,14 +4,15 @@ import { CalendarWithStats, Client, Post } from '@/lib/types'
 import StatusBadge from '@/components/StatusBadge'
 import NewClientButton from './clientes/NewClientButton'
 import ClientActions from './clientes/ClientActions'
+import UnarchiveCalendarButton from './calendarios/UnarchiveCalendarButton'
 import { postCompleto } from '@/lib/postProgress'
 
 export default async function AgenciaDashboard({
   searchParams,
 }: {
-  searchParams: Promise<{ arquivados?: string }>
+  searchParams: Promise<{ arquivados?: string; cal_arq?: string }>
 }) {
-  const { arquivados } = await searchParams
+  const { arquivados, cal_arq } = await searchParams
   const showArchived = arquivados === '1'
 
   const supabase = await createClient()
@@ -29,30 +30,49 @@ export default async function AgenciaDashboard({
     .eq('archived', showArchived)
     .order('name')
 
-  // Para cada cliente, busca os calendários com contagens de status dos posts
+  // Para cada cliente: calendários ativos + contagem de arquivados + (se expandido) calendários arquivados
   const clientsWithData = await Promise.all(
     (clients ?? []).map(async (client: Client) => {
-      const { data: calendars } = await supabase
-        .from('calendars')
-        .select(`*, posts(id, fase, status_copy, status_caption, status_art)`)
-        .eq('client_id', client.id)
-        .eq('archived', false)
-        .order('created_at', { ascending: false })
+      const showArchivedCals = cal_arq === client.id
 
-      const enriched = (calendars ?? []).map((cal: { posts?: Pick<Post, 'id' | 'fase' | 'status_copy' | 'status_caption' | 'status_art'>[] } & Record<string, unknown>) => {
-        const posts = cal.posts ?? []
-        return {
-          ...cal,
-          total_posts: posts.length,
-          done: posts.filter((p) => postCompleto(p as Post)).length,
-        } as CalendarWithStats
-      })
+      const [activeRes, archivedCountRes, archivedCalsRes] = await Promise.all([
+        supabase
+          .from('calendars')
+          .select(`*, posts(id, fase, status_copy, status_caption, status_art)`)
+          .eq('client_id', client.id)
+          .eq('archived', false)
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('calendars')
+          .select('id', { count: 'exact', head: true })
+          .eq('client_id', client.id)
+          .eq('archived', true),
+        showArchivedCals
+          ? supabase
+              .from('calendars')
+              .select(`*, posts(id, fase, status_copy, status_caption, status_art)`)
+              .eq('client_id', client.id)
+              .eq('archived', true)
+              .order('archived_at', { ascending: false })
+          : Promise.resolve({ data: null }),
+      ])
 
-      return { ...client, calendars: enriched }
+      const enrich = (cals: ({ posts?: Pick<Post, 'id' | 'fase' | 'status_copy' | 'status_caption' | 'status_art'>[] } & Record<string, unknown>)[]) =>
+        cals.map((cal) => {
+          const posts = cal.posts ?? []
+          return { ...cal, total_posts: posts.length, done: posts.filter((p) => postCompleto(p as Post)).length } as CalendarWithStats
+        })
+
+      return {
+        ...client,
+        calendars: enrich(activeRes.data ?? []),
+        archivedCalCount: archivedCountRes.count ?? 0,
+        archivedCals: archivedCalsRes.data ? enrich(archivedCalsRes.data) : null,
+      }
     })
   )
 
-  // Conta arquivados para exibir no toggle
+  // Conta clientes arquivados para toggle global
   const { count: archivedCount } = await supabase
     .from('clients')
     .select('id', { count: 'exact', head: true })
@@ -143,67 +163,127 @@ export default async function AgenciaDashboard({
       )}
 
       <div className="space-y-4">
-        {clientsWithData.map((client) => (
-          <div
-            key={client.id}
-            className={`bg-white rounded-xl border p-5 ${client.archived ? 'border-gray-200 opacity-80' : 'border-gray-100'}`}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <h2 className="font-semibold text-gray-900 text-lg">{client.name}</h2>
-                {client.archived && (
-                  <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Arquivado</span>
-                )}
+        {clientsWithData.map((client) => {
+          const showArchivedCals = cal_arq === client.id
+          return (
+            <div
+              key={client.id}
+              className={`bg-white rounded-xl border p-5 ${client.archived ? 'border-gray-200 opacity-80' : 'border-gray-100'}`}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <h2 className="font-semibold text-gray-900 text-lg">{client.name}</h2>
+                  {client.archived && (
+                    <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Arquivado</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {!client.archived && (
+                    <Link
+                      href={`/agencia/clientes/${client.id}/novo-calendario`}
+                      className="text-sm text-gray-500 hover:text-black border border-gray-200 rounded-lg px-3 py-1.5 transition-colors"
+                    >
+                      + Calendário
+                    </Link>
+                  )}
+                  <ClientActions client={client} />
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                {!client.archived && (
+
+              {/* Calendários ativos */}
+              {client.calendars.length === 0 && !showArchivedCals && (
+                <p className="text-gray-400 text-sm">Nenhum calendário ainda.</p>
+              )}
+
+              <div className="space-y-2">
+                {client.calendars.map((cal) => (
                   <Link
-                    href={`/agencia/clientes/${client.id}/novo-calendario`}
-                    className="text-sm text-gray-500 hover:text-black border border-gray-200 rounded-lg px-3 py-1.5 transition-colors"
+                    key={cal.id}
+                    href={`/agencia/calendarios/${cal.id}`}
+                    className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors group"
                   >
-                    + Calendário
+                    <div className="flex items-center gap-3 min-w-0">
+                      <StatusBadge status={cal.status} />
+                      <span className="text-sm font-medium text-gray-800 truncate group-hover:text-black">
+                        {cal.title}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 ml-3 shrink-0 text-xs text-gray-500">
+                      {cal.total_posts > 0 ? (
+                        <>
+                          <span className={cal.done === cal.total_posts ? 'text-green-600 font-medium' : ''}>
+                            {cal.done} de {cal.total_posts} completos
+                          </span>
+                          {cal.done === cal.total_posts && (
+                            <span className="text-green-600">✓</span>
+                          )}
+                        </>
+                      ) : (
+                        <span>Sem posts</span>
+                      )}
+                    </div>
                   </Link>
-                )}
-                <ClientActions client={client} />
+                ))}
               </div>
-            </div>
 
-            {client.calendars.length === 0 && (
-              <p className="text-gray-400 text-sm">Nenhum calendário ainda.</p>
-            )}
-
-            <div className="space-y-2">
-              {client.calendars.map((cal) => (
-                <Link
-                  key={cal.id}
-                  href={`/agencia/calendarios/${cal.id}`}
-                  className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors group"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <StatusBadge status={cal.status} />
-                    <span className="text-sm font-medium text-gray-800 truncate group-hover:text-black">
-                      {cal.title}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3 ml-3 shrink-0 text-xs text-gray-500">
-                    {cal.total_posts > 0 ? (
-                      <>
-                        <span className={cal.done === cal.total_posts ? 'text-green-600 font-medium' : ''}>
-                          {cal.done} de {cal.total_posts} completos
+              {/* Toggle e lista de calendários arquivados */}
+              {client.archivedCalCount > 0 && (
+                <div className="mt-3">
+                  {showArchivedCals ? (
+                    <>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                          Calendários arquivados
                         </span>
-                        {cal.done === cal.total_posts && (
-                          <span className="text-green-600">✓</span>
-                        )}
-                      </>
-                    ) : (
-                      <span>Sem posts</span>
-                    )}
-                  </div>
-                </Link>
-              ))}
+                        <Link
+                          href={arquivados === '1' ? '/agencia?arquivados=1' : '/agencia'}
+                          className="text-xs text-gray-400 hover:text-black"
+                        >
+                          Ocultar
+                        </Link>
+                      </div>
+                      <div className="space-y-2">
+                        {(client.archivedCals ?? []).map((cal) => (
+                          <div
+                            key={cal.id}
+                            className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border border-dashed border-gray-200"
+                          >
+                            <Link
+                              href={`/agencia/calendarios/${cal.id}`}
+                              className="flex items-center gap-3 min-w-0 flex-1 hover:opacity-70 transition-opacity"
+                            >
+                              <StatusBadge status={cal.status} />
+                              <span className="text-sm font-medium text-gray-600 truncate">
+                                {cal.title}
+                              </span>
+                              {cal.reference_month && (
+                                <span className="text-xs text-gray-400 shrink-0">{cal.reference_month}</span>
+                              )}
+                            </Link>
+                            <div className="flex items-center gap-3 ml-3 shrink-0">
+                              <span className="text-xs text-gray-400">
+                                {cal.total_posts > 0 ? `${cal.total_posts} post${cal.total_posts !== 1 ? 's' : ''}` : 'Sem posts'}
+                              </span>
+                              <UnarchiveCalendarButton calendarId={cal.id} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <Link
+                      href={`${arquivados === '1' ? '/agencia?arquivados=1&' : '/agencia?'}cal_arq=${client.id}`}
+                      className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-black transition-colors mt-1"
+                    >
+                      <span>Ver calendários arquivados ({client.archivedCalCount})</span>
+                      <span>→</span>
+                    </Link>
+                  )}
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )
