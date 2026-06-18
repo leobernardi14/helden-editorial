@@ -3,19 +3,24 @@ import { redirect } from 'next/navigation'
 import { logout } from '@/app/actions/auth'
 import Link from 'next/link'
 import Image from 'next/image'
+import { getActivitiesLastViewed } from '@/app/actions/notifications'
 
 export default async function AgenciaLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const [profileRes, pendingRes] = await Promise.all([
+  const lastViewed = await getActivitiesLastViewed()
+
+  const [profileRes, newActivityRes] = await Promise.all([
     supabase.from('profiles').select('full_name').eq('id', user.id).single(),
-    supabase.from('posts').select('id', { count: 'exact', head: true }).eq('status', 'pendente'),
+    lastViewed
+      ? supabase.from('approval_history').select('id', { count: 'exact', head: true }).gt('created_at', lastViewed)
+      : supabase.from('approval_history').select('id', { count: 'exact', head: true }),
   ])
 
   const profile = profileRes.data
-  const pendingCount = pendingRes.count ?? 0
+  const pendingCount = newActivityRes.count ?? 0
 
   return (
     <div className="min-h-screen bg-gray-50">

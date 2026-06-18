@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { ApprovalAction } from '@/lib/types'
 import AtividadesFeed, { type HistoryItem, type PendingPost } from './AtividadesFeed'
+import MarkViewed from './MarkViewed'
 
 const VALID_FILTERS = ['todos', 'aprovado', 'reprovado', 'ajuste', 'pendente'] as const
 type FilterValue = (typeof VALID_FILTERS)[number]
@@ -60,6 +61,7 @@ export default async function AtividadesPage({
 
   return (
     <div>
+      <MarkViewed />
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Atividades</h1>
