@@ -71,7 +71,7 @@ function ApprovalBlock({
                          'border-l-[3px] border-l-orange-400'
 
   return (
-    <div className={`rounded-xl border ${borderColor[currentStatus]} ${partBorderLeft} overflow-hidden`}>
+    <div className={`rounded-r-xl border ${borderColor[currentStatus]} ${partBorderLeft} overflow-hidden`}>
       <div className={`px-4 py-3 ${bgColor[currentStatus]}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

@@ -155,35 +155,37 @@ export default function PostList({
                     )}
                   </div>
 
-                  {/* Copy da arte */}
-                  <div className="mb-2 pl-2.5 border-l-[3px] border-l-blue-400">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Copy da arte</span>
-                      <StatusBadge status={post.status_copy} />
+                  <div className="space-y-3">
+                    {/* Copy da arte */}
+                    <div className="pl-3 py-1.5 border-l-[3px] border-l-blue-400">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Copy da arte</span>
+                        <StatusBadge status={post.status_copy} />
+                      </div>
+                      <ExpandableCaption text={post.copy_text || '—'} />
                     </div>
-                    <ExpandableCaption text={post.copy_text || '—'} />
-                  </div>
 
-                  {/* Legenda */}
-                  <div className="mb-2 pl-2.5 border-l-[3px] border-l-purple-400">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-xs font-semibold text-purple-600 uppercase tracking-wide">Legenda</span>
-                      <StatusBadge status={post.status_caption} />
-                    </div>
-                    {post.caption
-                      ? <ExpandableCaption text={post.caption} />
-                      : <p className="text-sm text-gray-400 italic">Sem legenda</p>
-                    }
-                  </div>
-
-                  {/* Arte */}
-                  <div className="pl-2.5 border-l-[3px] border-l-orange-400">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="text-xs font-semibold text-orange-500 uppercase tracking-wide">Arte</span>
-                      {post.fase === 'arte'
-                        ? <StatusBadge status={post.status_art} />
-                        : <span className="text-xs text-gray-400 italic">aguardando liberação</span>
+                    {/* Legenda */}
+                    <div className="pl-3 py-1.5 border-l-[3px] border-l-purple-400">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs font-semibold text-purple-600 uppercase tracking-wide">Legenda</span>
+                        <StatusBadge status={post.status_caption} />
+                      </div>
+                      {post.caption
+                        ? <ExpandableCaption text={post.caption} />
+                        : <p className="text-sm text-gray-400 italic">Sem legenda</p>
                       }
+                    </div>
+
+                    {/* Arte */}
+                    <div className="pl-3 py-1.5 border-l-[3px] border-l-orange-400">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-orange-500 uppercase tracking-wide">Arte</span>
+                        {post.fase === 'arte'
+                          ? <StatusBadge status={post.status_art} />
+                          : <span className="text-xs text-gray-400 italic">aguardando liberação</span>
+                        }
+                      </div>
                     </div>
                   </div>
 
