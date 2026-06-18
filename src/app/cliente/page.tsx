@@ -11,6 +11,7 @@ export default async function ClienteDashboard() {
     .from('calendars')
     .select(`*, posts(id, fase, status_copy, status_caption, status_art)`)
     .in('status', ['enviado', 'concluido'])
+    .eq('archived', false)
     .order('created_at', { ascending: false })
 
   type CalWithPosts = Calendar & { posts: Pick<Post, 'id' | 'fase' | 'status_copy' | 'status_caption' | 'status_art'>[] }

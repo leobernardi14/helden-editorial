@@ -36,6 +36,7 @@ export default async function AgenciaDashboard({
         .from('calendars')
         .select(`*, posts(id, fase, status_copy, status_caption, status_art)`)
         .eq('client_id', client.id)
+        .eq('archived', false)
         .order('created_at', { ascending: false })
 
       const enriched = (calendars ?? []).map((cal: { posts?: Pick<Post, 'id' | 'fase' | 'status_copy' | 'status_caption' | 'status_art'>[] } & Record<string, unknown>) => {

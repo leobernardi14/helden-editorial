@@ -4,6 +4,7 @@ import Link from 'next/link'
 import StatusBadge from '@/components/StatusBadge'
 import PostList from './PostList'
 import CalendarActions from './CalendarActions'
+import CalendarEditArchiveActions from './CalendarEditArchiveActions'
 import { Post } from '@/lib/types'
 
 export default async function CalendarPage({
@@ -38,18 +39,31 @@ export default async function CalendarPage({
         <Link href="/agencia" className="text-sm text-gray-500 hover:text-black">← Voltar</Link>
         <div className="flex items-start justify-between mt-2 gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 leading-tight">{calendar.title}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold text-gray-900 leading-tight">{calendar.title}</h1>
+              {calendar.archived && (
+                <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Arquivado</span>
+              )}
+            </div>
             <p className="text-gray-500 text-sm mt-0.5">
               {(calendar.clients as { name: string }).name}
               {calendar.reference_month && <> · {calendar.reference_month}</>}
             </p>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <StatusBadge status={calendar.status} />
-            <CalendarActions
+          <div className="flex flex-col items-end gap-2 shrink-0">
+            <div className="flex items-center gap-2">
+              <StatusBadge status={calendar.status} />
+              <CalendarActions
+                calendarId={calendarId}
+                status={calendar.status}
+                allApproved={allApproved}
+              />
+            </div>
+            <CalendarEditArchiveActions
               calendarId={calendarId}
-              status={calendar.status}
-              allApproved={allApproved}
+              title={calendar.title}
+              referenceMonth={calendar.reference_month}
+              archived={calendar.archived ?? false}
             />
           </div>
         </div>

@@ -30,6 +30,8 @@ export interface Calendar {
   title: string
   reference_month: string | null
   status: CalendarStatus
+  archived: boolean
+  archived_at: string | null
   created_at: string
 }
 

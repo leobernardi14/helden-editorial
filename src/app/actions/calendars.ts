@@ -4,6 +4,13 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
+async function verifyAgencia(supabase: Awaited<ReturnType<typeof createClient>>) {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return false
+  const { data } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  return data?.role === 'agencia'
+}
+
 export async function createCalendarAction(formData: FormData) {
   const supabase = await createClient()
   const clientId = formData.get('client_id') as string
@@ -30,6 +37,8 @@ export async function createCalendarAction(formData: FormData) {
 
 export async function updateCalendarAction(formData: FormData) {
   const supabase = await createClient()
+  if (!(await verifyAgencia(supabase))) return { error: 'Acesso negado.' }
+
   const id = formData.get('id') as string
   const title = (formData.get('title') as string).trim()
   const referenceMonth = formData.get('reference_month') as string | null
@@ -44,6 +53,38 @@ export async function updateCalendarAction(formData: FormData) {
   if (error) return { error: error.message }
 
   revalidatePath(`/agencia/calendarios/${id}`)
+  revalidatePath('/agencia')
+  return { success: true }
+}
+
+export async function archiveCalendarAction(calendarId: string) {
+  const supabase = await createClient()
+  if (!(await verifyAgencia(supabase))) return { error: 'Acesso negado.' }
+
+  const { error } = await supabase
+    .from('calendars')
+    .update({ archived: true, archived_at: new Date().toISOString() })
+    .eq('id', calendarId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/agencia')
+  return { success: true }
+}
+
+export async function unarchiveCalendarAction(calendarId: string) {
+  const supabase = await createClient()
+  if (!(await verifyAgencia(supabase))) return { error: 'Acesso negado.' }
+
+  const { error } = await supabase
+    .from('calendars')
+    .update({ archived: false, archived_at: null })
+    .eq('id', calendarId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/agencia')
+  revalidatePath(`/agencia/calendarios/${calendarId}`)
   return { success: true }
 }
 

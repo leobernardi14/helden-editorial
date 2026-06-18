@@ -74,6 +74,15 @@ Cada post tem **3 aprovações independentes** e **1 fase**:
 
 ---
 
+## Feature: Editar e arquivar calendários
+
+- [x] **I1 — Migration SQL** — `archived BOOLEAN NOT NULL DEFAULT false` + `archived_at TIMESTAMPTZ` em `calendars`
+- [x] **I2 — Tipos + Actions** — `Calendar` type, `archiveCalendarAction`, `unarchiveCalendarAction`, `updateCalendarAction` com role check
+- [x] **I3 — UI agência** — Botão Editar (modal título + mês), botão Arquivar/Desarquivar com confirmação na página do calendário; toggle "Ver arquivados" no dashboard por cliente
+- [x] **I4 — Lado do cliente** — calendários arquivados excluídos da query (`.eq('archived', false)`)
+
+---
+
 ## Para colocar em produção
 
 1. Criar projeto Supabase e rodar `supabase/migrations/001_initial.sql`
