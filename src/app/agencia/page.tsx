@@ -158,7 +158,7 @@ export default async function AgenciaDashboard({
                 {!client.archived && (
                   <Link
                     href={`/agencia/clientes/${client.id}/novo-calendario`}
-                    className="text-sm text-black bg-helden-yellow font-medium rounded-lg px-3 py-1.5 hover:brightness-90 transition-colors"
+                    className="text-sm text-gray-500 hover:text-black border border-gray-200 rounded-lg px-3 py-1.5 transition-colors"
                   >
                     + Calendário
                   </Link>

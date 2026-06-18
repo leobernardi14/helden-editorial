@@ -126,7 +126,7 @@ export default function ClientActions({ client }: { client: Client }) {
                 <button
                   type="submit"
                   disabled={loading || !name.trim()}
-                  className="flex-1 bg-helden-yellow text-black text-sm font-medium rounded-lg py-2.5 hover:brightness-90 disabled:opacity-50 transition-colors"
+                  className="flex-1 bg-black text-white text-sm font-medium rounded-lg py-2.5 hover:bg-gray-800 disabled:opacity-50 transition-colors"
                 >
                   {loading ? 'Salvando…' : 'Salvar'}
                 </button>
@@ -187,7 +187,7 @@ export default function ClientActions({ client }: { client: Client }) {
                 </div>
                 <button
                   onClick={() => { setResetOpen(false); setResetDone(false) }}
-                  className="w-full bg-helden-yellow text-black text-sm font-medium rounded-lg py-2.5 hover:brightness-90 transition-colors"
+                  className="w-full bg-black text-white text-sm font-medium rounded-lg py-2.5 hover:bg-gray-800 transition-colors"
                 >
                   Fechar
                 </button>
@@ -226,7 +226,7 @@ export default function ClientActions({ client }: { client: Client }) {
                   <button
                     type="submit"
                     disabled={loading || newPassword.length < 8}
-                    className="flex-1 bg-helden-yellow text-black text-sm font-medium rounded-lg py-2.5 hover:brightness-90 disabled:opacity-50 transition-colors"
+                    className="flex-1 bg-black text-white text-sm font-medium rounded-lg py-2.5 hover:bg-gray-800 disabled:opacity-50 transition-colors"
                   >
                     {loading ? 'Redefinindo…' : 'Confirmar reset'}
                   </button>

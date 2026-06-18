@@ -45,7 +45,7 @@ export default function PostList({
         <h2 className="font-semibold text-gray-900">Posts ({posts.length})</h2>
         <button
           onClick={() => { setShowAddForm(true); setEditingPost(null) }}
-          className="text-sm bg-helden-yellow text-black px-3 py-1.5 rounded-lg hover:brightness-90 transition-colors"
+          className="text-sm bg-black text-white px-3 py-1.5 rounded-lg hover:bg-gray-800 transition-colors"
         >
           + Adicionar post
         </button>
@@ -213,7 +213,7 @@ export default function PostList({
                   {post.fase === 'copys' && copysApproved(post) && (
                     <button
                       onClick={() => setReleasingPost(post)}
-                      className="text-xs text-black bg-helden-yellow hover:brightness-90 rounded-md px-2 py-1 transition-colors"
+                      className="text-xs text-white bg-black hover:bg-gray-800 rounded-md px-2 py-1 transition-colors"
                     >
                       Liberar arte
                     </button>
