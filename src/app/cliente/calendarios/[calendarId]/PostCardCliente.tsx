@@ -61,12 +61,17 @@ function ApprovalBlock({
   }
 
   const partColor =
-    part === 'copy'    ? 'text-blue-700' :
-    part === 'caption' ? 'text-purple-700' :
-                         'text-orange-700'
+    part === 'copy'    ? 'text-blue-600' :
+    part === 'caption' ? 'text-purple-600' :
+                         'text-orange-500'
+
+  const partBorderLeft =
+    part === 'copy'    ? 'border-l-[3px] border-l-blue-400' :
+    part === 'caption' ? 'border-l-[3px] border-l-purple-400' :
+                         'border-l-[3px] border-l-orange-400'
 
   return (
-    <div className={`rounded-xl border ${borderColor[currentStatus]} overflow-hidden`}>
+    <div className={`rounded-xl border ${borderColor[currentStatus]} ${partBorderLeft} overflow-hidden`}>
       <div className={`px-4 py-3 ${bgColor[currentStatus]}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
