@@ -25,8 +25,8 @@ export default async function AgenciaLayout({ children }: { children: React.Reac
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-black sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-5">
+        <div className="max-w-6xl mx-auto px-3 sm:px-4 h-14 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 sm:gap-5 min-w-0">
             <Link href="/agencia" className="shrink-0">
               <Image
                 src="/logo-helden-claro.png"
@@ -34,18 +34,19 @@ export default async function AgenciaLayout({ children }: { children: React.Reac
                 width={89}
                 height={36}
                 priority
+                className="h-7 w-auto sm:h-9"
               />
             </Link>
-            <nav className="flex items-center gap-1">
+            <nav className="flex items-center gap-0.5 sm:gap-1 min-w-0">
               <Link
                 href="/agencia"
-                className="text-sm text-white/70 hover:text-white px-3 py-1.5 rounded-md hover:bg-white/10 transition-colors"
+                className="text-xs sm:text-sm text-white/70 hover:text-white px-2 sm:px-3 py-1.5 rounded-md hover:bg-white/10 transition-colors whitespace-nowrap"
               >
                 Dashboard
               </Link>
               <Link
                 href="/agencia/atividades"
-                className="relative text-sm text-white/70 hover:text-white px-3 py-1.5 rounded-md hover:bg-white/10 transition-colors"
+                className="relative text-xs sm:text-sm text-white/70 hover:text-white px-2 sm:px-3 py-1.5 rounded-md hover:bg-white/10 transition-colors whitespace-nowrap"
               >
                 Atividades
                 {pendingCount > 0 && (
@@ -56,7 +57,7 @@ export default async function AgenciaLayout({ children }: { children: React.Reac
               </Link>
             </nav>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <span className="text-sm text-white/60 hidden sm:block">{profile?.full_name}</span>
             <form action={logout}>
               <button
@@ -69,7 +70,7 @@ export default async function AgenciaLayout({ children }: { children: React.Reac
           </div>
         </div>
       </header>
-      <main className="max-w-6xl mx-auto px-4 py-6">{children}</main>
+      <main className="max-w-6xl mx-auto px-3 sm:px-4 py-6">{children}</main>
     </div>
   )
 }

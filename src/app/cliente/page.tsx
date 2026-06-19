@@ -26,7 +26,7 @@ export default async function ClienteDashboard() {
   return (
     <div>
       <h1 className="text-xl font-bold text-gray-900 mb-1">Meus Calendários</h1>
-      <p className="text-gray-500 text-sm mb-6">{enriched.length} calendário{enriched.length !== 1 ? 's' : ''} disponível{enriched.length !== 1 ? 'eis' : ''}</p>
+      <p className="text-gray-500 text-sm mb-6">{enriched.length} calendário{enriched.length !== 1 ? 's' : ''} {enriched.length !== 1 ? 'disponíveis' : 'disponível'}</p>
 
       {enriched.length === 0 && (
         <div className="text-center py-20 text-gray-400">

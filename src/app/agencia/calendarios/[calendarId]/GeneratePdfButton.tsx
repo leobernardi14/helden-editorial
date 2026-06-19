@@ -37,15 +37,15 @@ export default function GeneratePdfButton({ calendarId }: { calendarId: string }
   }
 
   return (
-    <div className="flex flex-col items-end gap-1">
+    <div className="flex flex-col items-stretch sm:items-end gap-1 w-full sm:w-auto">
       <button
         onClick={handleClick}
         disabled={loading}
-        className="text-sm text-gray-500 hover:text-black border border-gray-200 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50"
+        className="w-full sm:w-auto text-sm text-gray-500 hover:text-black border border-gray-200 rounded-lg px-3 py-1.5 transition-colors disabled:opacity-50"
       >
         {loading ? 'Gerando…' : 'Gerar PDF das copys'}
       </button>
-      {error && <p className="text-xs text-red-600 max-w-xs text-right">{error}</p>}
+      {error && <p className="text-xs text-red-600 max-w-xs sm:text-right">{error}</p>}
     </div>
   )
 }

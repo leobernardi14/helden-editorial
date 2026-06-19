@@ -38,21 +38,21 @@ export default async function CalendarPage({
     <div>
       <div className="mb-6">
         <Link href="/agencia" className="text-sm text-gray-500 hover:text-black">← Voltar</Link>
-        <div className="flex items-start justify-between mt-2 gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-gray-900 leading-tight">{calendar.title}</h1>
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mt-2 gap-3 sm:gap-4">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-2xl font-bold text-gray-900 leading-tight break-words">{calendar.title}</h1>
               {calendar.archived && (
-                <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Arquivado</span>
+                <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full shrink-0">Arquivado</span>
               )}
             </div>
-            <p className="text-gray-500 text-sm mt-0.5">
+            <p className="text-gray-500 text-sm mt-0.5 break-words">
               {(calendar.clients as { name: string }).name}
               {calendar.reference_month && <> · {calendar.reference_month}</>}
             </p>
           </div>
-          <div className="flex flex-col items-end gap-2 shrink-0">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col items-stretch sm:items-end gap-2 shrink-0">
+            <div className="flex items-center gap-2 flex-wrap">
               <StatusBadge status={calendar.status} />
               <CalendarActions
                 calendarId={calendarId}

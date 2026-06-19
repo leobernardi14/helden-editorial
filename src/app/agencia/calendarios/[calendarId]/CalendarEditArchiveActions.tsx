@@ -57,7 +57,7 @@ export default function CalendarEditArchiveActions({
 
   return (
     <>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <button
           onClick={() => { setShowEdit(true); setError(null) }}
           className="text-sm text-gray-500 hover:text-black border border-gray-200 rounded-lg px-3 py-1.5 transition-colors"

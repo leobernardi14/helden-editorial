@@ -119,8 +119,8 @@ export default async function AgenciaDashboard({
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-6">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        <div className="min-w-0">
           <h1 className="text-2xl font-bold text-gray-900">
             {showArchived ? 'Clientes arquivados' : 'Clientes'}
           </h1>
@@ -129,7 +129,7 @@ export default async function AgenciaDashboard({
             {showArchived ? ' arquivado' : ' ativo'}{clientsWithData.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           {showArchived ? (
             <Link
               href="/agencia"
@@ -170,14 +170,14 @@ export default async function AgenciaDashboard({
               key={client.id}
               className={`bg-white rounded-xl border p-5 ${client.archived ? 'border-gray-200 opacity-80' : 'border-gray-100'}`}
             >
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <h2 className="font-semibold text-gray-900 text-lg">{client.name}</h2>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                <div className="flex items-center gap-3 min-w-0 flex-wrap">
+                  <h2 className="font-semibold text-gray-900 text-lg truncate">{client.name}</h2>
                   {client.archived && (
-                    <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Arquivado</span>
+                    <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full shrink-0">Arquivado</span>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   {!client.archived && (
                     <Link
                       href={`/agencia/clientes/${client.id}/novo-calendario`}

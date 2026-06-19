@@ -31,12 +31,12 @@ export default function CalendarActions({
   }
 
   return (
-    <div className="flex flex-col items-end gap-1">
+    <div className="flex flex-col items-stretch sm:items-end gap-1 w-full sm:w-auto">
       {status === 'rascunho' && (
         <button
           onClick={handleRelease}
           disabled={loading}
-          className="bg-blue-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+          className="w-full sm:w-auto bg-blue-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
         >
           {loading ? 'Aguarde…' : 'Liberar para o cliente'}
         </button>
@@ -45,7 +45,7 @@ export default function CalendarActions({
         <button
           onClick={handleConclude}
           disabled={loading}
-          className="bg-green-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+          className="w-full sm:w-auto bg-green-600 text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
         >
           {loading ? 'Aguarde…' : 'Marcar como concluído'}
         </button>

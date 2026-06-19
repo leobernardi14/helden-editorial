@@ -65,7 +65,7 @@ export default function ClientActions({ client }: { client: Client }) {
 
   return (
     <>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <button
           onClick={() => { setEditOpen(true); setName(client.name); setError(null) }}
           className="text-xs text-gray-500 hover:text-black border border-gray-200 rounded-md px-2 py-1 transition-colors"
