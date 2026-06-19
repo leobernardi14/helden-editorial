@@ -193,12 +193,12 @@ export default function PostCardCliente({
             <span className="text-xs font-medium text-gray-400">Post #{index + 1}</span>
             {post.post_type && (
               <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
-                {post.post_type.charAt(0).toUpperCase() + post.post_type.slice(1)}
+                Formato: {post.post_type.toUpperCase()}
               </span>
             )}
             {post.scheduled_date && (
               <span className="text-xs text-gray-400">
-                {new Date(post.scheduled_date + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
+                Data da publicação: {new Date(post.scheduled_date + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
               </span>
             )}
           </div>

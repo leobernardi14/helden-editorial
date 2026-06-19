@@ -11,10 +11,6 @@ import ImageLightbox from '@/components/ImageLightbox'
 import ExpandableCaption from '@/components/ExpandableCaption'
 import ReleaseArtForm from './ReleaseArtForm'
 
-const postTypeLabels: Record<string, string> = {
-  feed: 'Feed', story: 'Story', reels: 'Reels', carrossel: 'Carrossel',
-}
-
 function postNeedsAction(post: Post) {
   const bad: PostStatus[] = ['reprovado', 'ajuste']
   return bad.includes(post.status_copy) || bad.includes(post.status_caption) || bad.includes(post.status_art)
@@ -145,12 +141,12 @@ export default function PostList({
                     ) })()}
                     {post.post_type && (
                       <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
-                        {postTypeLabels[post.post_type]}
+                        Formato: {post.post_type.toUpperCase()}
                       </span>
                     )}
                     {post.scheduled_date && (
                       <span className="text-xs text-gray-400">
-                        {new Date(post.scheduled_date + 'T12:00:00').toLocaleDateString('pt-BR')}
+                        Data da publicação: {new Date(post.scheduled_date + 'T12:00:00').toLocaleDateString('pt-BR')}
                       </span>
                     )}
                   </div>

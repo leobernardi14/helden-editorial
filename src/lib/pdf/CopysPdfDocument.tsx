@@ -2,10 +2,6 @@ import { Document, Page, Text, View, Image, StyleSheet } from '@react-pdf/render
 import { Post } from '@/lib/types'
 import { LOGO_HELDEN_ESCURO_BASE64 } from './logoBase64'
 
-const postTypeLabels: Record<string, string> = {
-  feed: 'Feed', story: 'Story', reels: 'Reels', carrossel: 'Carrossel',
-}
-
 const styles = StyleSheet.create({
   page: {
     padding: 36,
@@ -24,7 +20,8 @@ const styles = StyleSheet.create({
   },
   logo: {
     width: 80,
-    height: 32,
+    height: 27.1, // proporção original do PNG (2500x847) preservada
+    objectFit: 'contain',
   },
   headerInfo: {
     alignItems: 'flex-end',
@@ -152,11 +149,11 @@ export function CopysPdfDocument({
             <View style={styles.postHeaderRow}>
               <Text style={styles.postNumber}>#{post.position}</Text>
               {post.post_type && (
-                <Text style={styles.postTypeBadge}>{postTypeLabels[post.post_type] ?? post.post_type}</Text>
+                <Text style={styles.postTypeBadge}>Formato: {post.post_type.toUpperCase()}</Text>
               )}
               {post.scheduled_date && (
                 <Text style={styles.postDate}>
-                  {new Date(post.scheduled_date + 'T12:00:00').toLocaleDateString('pt-BR')}
+                  Data da publicação: {new Date(post.scheduled_date + 'T12:00:00').toLocaleDateString('pt-BR')}
                 </Text>
               )}
               <Text style={styles.approvedBadge}>✓ Copy aprovada</Text>
