@@ -83,16 +83,10 @@ const styles = StyleSheet.create({
     marginLeft: 'auto',
   },
   sectionBlock: {
-    marginBottom: 8,
-    paddingLeft: 8,
-    borderLeftWidth: 3,
-    borderLeftColor: '#60a5fa',
-  },
-  sectionBlockLegenda: {
     marginBottom: 0,
     paddingLeft: 8,
     borderLeftWidth: 3,
-    borderLeftColor: '#a78bfa',
+    borderLeftColor: '#60a5fa',
   },
   sectionLabel: {
     fontSize: 8,
@@ -102,7 +96,6 @@ const styles = StyleSheet.create({
     marginBottom: 3,
   },
   sectionLabelCopy: { color: '#1d4ed8' },
-  sectionLabelLegenda: { color: '#7c3aed' },
   sectionText: {
     fontSize: 10,
     lineHeight: 1.4,
@@ -123,7 +116,6 @@ export interface CopysPdfPost {
   post_type: Post['post_type']
   scheduled_date: Post['scheduled_date']
   copy_text: string
-  caption: string | null
 }
 
 export function CopysPdfDocument({
@@ -167,17 +159,12 @@ export function CopysPdfDocument({
                   {new Date(post.scheduled_date + 'T12:00:00').toLocaleDateString('pt-BR')}
                 </Text>
               )}
-              <Text style={styles.approvedBadge}>✓ Copys aprovadas</Text>
+              <Text style={styles.approvedBadge}>✓ Copy aprovada</Text>
             </View>
 
             <View style={styles.sectionBlock}>
               <Text style={[styles.sectionLabel, styles.sectionLabelCopy]}>Copy da arte</Text>
               <Text style={styles.sectionText}>{post.copy_text || '—'}</Text>
-            </View>
-
-            <View style={styles.sectionBlockLegenda}>
-              <Text style={[styles.sectionLabel, styles.sectionLabelLegenda]}>Legenda</Text>
-              <Text style={styles.sectionText}>{post.caption || '—'}</Text>
             </View>
           </View>
         ))}
