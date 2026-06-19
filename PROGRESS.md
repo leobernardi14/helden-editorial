@@ -93,6 +93,17 @@ Cada post tem **3 aprovações independentes** e **1 fase**:
 
 ---
 
+## Melhorias futuras (v2)
+
+Itens identificados mas conscientemente postergados para depois do período de uso real. Retomar quando houver sinal de demanda real.
+
+- [ ] **Upload de logo do cliente** — exibir no lugar/junto do nome, no sistema e no PDF. Fazer bem feito: tratar formatos imprevisíveis (horizontal/quadrado/vertical), fundos variados, fallback para nome em texto quando não houver logo.
+- [ ] **Integração com Meta/Instagram** — publicação automática dos posts aprovados. Avaliar via serviço intermediário; exige verificação de negócio e app review da Meta.
+- [ ] **Cantos arredondados do placeholder de arte (lado cliente)** — cosmético, baixa prioridade.
+- [ ] **Autoatendimento de "esqueci minha senha" para o cliente** — hoje o reset é feito pela agência (`resetClientPasswordAction`), e isso permanece assim por ora. Registrado como opção futura, não uma lacuna a corrigir.
+
+---
+
 ## Para colocar em produção
 
 1. Criar projeto Supabase e rodar `supabase/migrations/001_initial.sql`
