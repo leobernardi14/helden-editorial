@@ -83,6 +83,16 @@ Cada post tem **3 aprovações independentes** e **1 fase**:
 
 ---
 
+## Feature: Gerar PDF das copys aprovadas (referência para o designer)
+
+- [x] **J1 — Lib de geração** — `@react-pdf/renderer` (puro JS, sem binários nativos, funciona em Vercel serverless)
+- [x] **J2 — Route handler** — `GET /api/agencia/calendarios/[calendarId]/copys-pdf`, verifica role `agencia` no servidor
+- [x] **J3 — Conteúdo** — apenas posts com `status_copy='aprovado'` E `status_caption='aprovado'`; cabeçalho com logo escura, cliente, calendário, mês, data de geração
+- [x] **J4 — UI agência** — botão "Gerar PDF das copys" na página do calendário; mensagem clara quando não há posts aprovados
+- [x] **J5 — Nome do arquivo** — `copys-aprovadas-[cliente]-[mes].pdf`
+
+---
+
 ## Para colocar em produção
 
 1. Criar projeto Supabase e rodar `supabase/migrations/001_initial.sql`

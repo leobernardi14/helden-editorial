@@ -5,6 +5,7 @@ import StatusBadge from '@/components/StatusBadge'
 import PostList from './PostList'
 import CalendarActions from './CalendarActions'
 import CalendarEditArchiveActions from './CalendarEditArchiveActions'
+import GeneratePdfButton from './GeneratePdfButton'
 import { Post } from '@/lib/types'
 
 export default async function CalendarPage({
@@ -65,6 +66,7 @@ export default async function CalendarPage({
               referenceMonth={calendar.reference_month}
               archived={calendar.archived ?? false}
             />
+            <GeneratePdfButton calendarId={calendarId} />
           </div>
         </div>
       </div>
