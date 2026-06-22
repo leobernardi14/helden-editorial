@@ -79,7 +79,11 @@ export default function PostHistoryModal({
                   {h.profiles?.full_name ?? h.profiles?.email ?? 'Cliente'}
                 </p>
                 {h.comment && (
-                  <p className="mt-2 text-sm text-gray-700 bg-yellow-50 border border-yellow-100 rounded-lg p-3 whitespace-pre-line">
+                  <p className={`mt-2 text-sm rounded-lg p-3 whitespace-pre-line border ${
+                    h.action === 'reprovado' ? 'text-red-700 bg-red-50 border-red-100' :
+                    h.action === 'ajuste'    ? 'text-yellow-700 bg-yellow-50 border-yellow-100' :
+                                              'text-gray-700 bg-yellow-50 border-yellow-100'
+                  }`}>
                     {h.comment}
                   </p>
                 )}

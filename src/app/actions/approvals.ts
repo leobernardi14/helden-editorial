@@ -19,6 +19,9 @@ export async function submitApprovalAction(formData: FormData) {
   if (action === 'ajuste' && !comment) {
     return { error: 'Descreva o ajuste necessário antes de enviar.' }
   }
+  if (action === 'reprovado' && !comment) {
+    return { error: 'Descreva o motivo da reprovação antes de enviar.' }
+  }
 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Não autenticado.' }
@@ -35,7 +38,7 @@ export async function submitApprovalAction(formData: FormData) {
     post_id: postId,
     part,
     action,
-    comment: action === 'ajuste' ? comment : null,
+    comment: (action === 'ajuste' || action === 'reprovado') ? comment : null,
     responded_by: user.id,
   })
 

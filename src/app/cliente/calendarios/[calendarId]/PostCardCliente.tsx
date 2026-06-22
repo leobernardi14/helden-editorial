@@ -33,7 +33,8 @@ function ApprovalBlock({
   const [error, setError]                 = useState<string | null>(null)
 
   const isAjuste  = selectedAction === 'ajuste'
-  const canSubmit = selectedAction && (!isAjuste || comment.trim().length > 0)
+  const requiresComment = selectedAction === 'ajuste' || selectedAction === 'reprovado'
+  const canSubmit = selectedAction && (!requiresComment || comment.trim().length > 0)
 
   const borderColor: Record<PostStatus, string> = {
     pendente: 'border-gray-200', aprovado: 'border-green-200',
@@ -54,7 +55,7 @@ function ApprovalBlock({
     fd.append('calendar_id', calendarId)
     fd.append('part', part)
     fd.append('action', selectedAction!)
-    if (isAjuste) fd.append('comment', comment.trim())
+    if (requiresComment) fd.append('comment', comment.trim())
     const result = await submitApprovalAction(fd)
     if (result?.error) { setError(result.error); setLoading(false) }
     else { setExpanded(false); setSelectedAction(null); setComment(''); setLoading(false) }
@@ -116,10 +117,10 @@ function ApprovalBlock({
                 )
               })}
             </div>
-            {isAjuste && (
+            {requiresComment && (
               <div className="mb-3">
                 <label className="block text-xs font-medium text-gray-600 mb-1">
-                  Descreva o ajuste necessário <span className="text-red-500">*</span>
+                  {isAjuste ? 'Descreva o ajuste necessário' : 'Descreva o motivo da reprovação'} <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   value={comment}
@@ -127,13 +128,19 @@ function ApprovalBlock({
                   rows={3}
                   className="input resize-none text-sm"
                   placeholder={
-                    part === 'copy'    ? 'Ex.: Alterar a cor do texto, corrigir a palavra…' :
-                    part === 'caption' ? 'Ex.: Alterar o horário para 18h, adicionar hashtags…' :
-                                        'Ex.: A arte ficou muito escura, ajustar o contraste…'
+                    isAjuste
+                      ? (part === 'copy'    ? 'Ex.: Alterar a cor do texto, corrigir a palavra…' :
+                         part === 'caption' ? 'Ex.: Alterar o horário para 18h, adicionar hashtags…' :
+                                              'Ex.: A arte ficou muito escura, ajustar o contraste…')
+                      : (part === 'copy'    ? 'Ex.: O texto não corresponde à promoção combinada…' :
+                         part === 'caption' ? 'Ex.: A legenda está fora do tom da marca…' :
+                                              'Ex.: A arte não está de acordo com o briefing…')
                   }
                 />
                 {comment.trim().length === 0 && (
-                  <p className="text-xs text-yellow-600 mt-1">Campo obrigatório para enviar ajuste.</p>
+                  <p className="text-xs text-yellow-600 mt-1">
+                    Campo obrigatório para enviar {isAjuste ? 'ajuste' : 'reprovação'}.
+                  </p>
                 )}
               </div>
             )}
