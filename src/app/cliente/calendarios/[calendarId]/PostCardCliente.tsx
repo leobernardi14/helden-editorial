@@ -253,6 +253,21 @@ export default function PostCardCliente({
           })()}
         </div>
 
+        {/* Na fase de arte, a seção Arte vem primeiro (em destaque); copys ficam abaixo como referência */}
+        {post.fase === 'arte' && (
+          <div className="px-4 pb-3">
+            <ApprovalBlock
+              postId={post.id}
+              calendarId={calendarId}
+              part="art"
+              label="Arte"
+              text="Avalie a imagem da arte acima."
+              currentStatus={post.status_art}
+              disabled={disabled}
+            />
+          </div>
+        )}
+
         {/* Bloco Copy da arte */}
         <div className="px-4 pb-3">
           <ApprovalBlock
@@ -267,7 +282,7 @@ export default function PostCardCliente({
         </div>
 
         {/* Bloco Legenda */}
-        <div className="px-4 pb-3">
+        <div className="px-4 pb-4">
           <ApprovalBlock
             postId={post.id}
             calendarId={calendarId}
@@ -278,22 +293,6 @@ export default function PostCardCliente({
             disabled={disabled}
           />
         </div>
-
-        {/* Bloco Arte — só na fase 'arte' */}
-        {post.fase === 'arte' && (
-          <div className="px-4 pb-4">
-            <ApprovalBlock
-              postId={post.id}
-              calendarId={calendarId}
-              part="art"
-              label="Arte"
-              text="Avalie a imagem da arte acima."
-              currentStatus={post.status_art}
-              disabled={disabled}
-            />
-          </div>
-        )}
-
       </div>
 
       {lightboxOpen && (
