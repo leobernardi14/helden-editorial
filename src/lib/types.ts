@@ -3,6 +3,8 @@ export type CalendarStatus = 'rascunho' | 'enviado' | 'concluido'
 export type PostStatus = 'pendente' | 'aprovado' | 'reprovado' | 'ajuste'
 export type PostType = 'feed' | 'story' | 'reels' | 'carrossel'
 export type ApprovalAction = 'aprovado' | 'reprovado' | 'ajuste'
+// Ação extra exclusiva da agência: aprovação interna de uma parte que estava em "ajuste"
+export type ApprovalHistoryAction = ApprovalAction | 'aprovado_interno'
 export type ApprovalPart = 'copy' | 'caption' | 'art'
 export type PostFase = 'copys' | 'arte'
 
@@ -61,7 +63,7 @@ export interface ApprovalHistory {
   id: string
   post_id: string
   part: ApprovalPart
-  action: ApprovalAction
+  action: ApprovalHistoryAction
   comment: string | null
   responded_by: string
   created_at: string

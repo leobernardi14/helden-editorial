@@ -1,12 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import { ApprovalAction, ApprovalPart } from '@/lib/types'
+import { ApprovalHistoryAction, ApprovalPart } from '@/lib/types'
 
 export type HistoryItem = {
   id: string
   part: ApprovalPart
-  action: ApprovalAction
+  action: ApprovalHistoryAction
   comment: string | null
   created_at: string
   profiles: { full_name: string | null; email: string } | null
@@ -31,10 +31,11 @@ export type PendingPost = {
   calendars: { title: string; clients: { name: string } | null } | null
 }
 
-const actionStyle: Record<ApprovalAction, { label: string; dot: string; text: string; bg: string }> = {
-  aprovado:  { label: 'Aprovado',  dot: 'bg-green-500',  text: 'text-green-700',  bg: 'bg-green-50' },
-  reprovado: { label: 'Reprovado', dot: 'bg-red-500',    text: 'text-red-700',    bg: 'bg-red-50' },
-  ajuste:    { label: 'Ajuste',    dot: 'bg-yellow-500', text: 'text-yellow-700', bg: 'bg-yellow-50' },
+const actionStyle: Record<ApprovalHistoryAction, { label: string; dot: string; text: string; bg: string }> = {
+  aprovado:         { label: 'Aprovado',                         dot: 'bg-green-500',  text: 'text-green-700',  bg: 'bg-green-50' },
+  reprovado:        { label: 'Reprovado',                        dot: 'bg-red-500',    text: 'text-red-700',    bg: 'bg-red-50' },
+  ajuste:           { label: 'Ajuste',                           dot: 'bg-yellow-500', text: 'text-yellow-700', bg: 'bg-yellow-50' },
+  aprovado_interno: { label: 'Aprovado pela Helden (após ajuste)', dot: 'bg-indigo-500', text: 'text-indigo-700', bg: 'bg-indigo-50' },
 }
 
 function timeAgo(dateStr: string) {

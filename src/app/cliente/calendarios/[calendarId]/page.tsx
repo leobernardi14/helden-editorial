@@ -31,6 +31,25 @@ export default async function ClienteCalendarioPage({
 
   const postList = (posts ?? []) as Post[]
 
+  // Última ação por (post, parte) — usado para identificar aprovações internas da agência
+  const postIds = postList.map((p) => p.id)
+  const { data: historyRows } = postIds.length > 0
+    ? await supabase
+        .from('approval_history')
+        .select('post_id, part, action')
+        .in('post_id', postIds)
+        .order('created_at', { ascending: false })
+    : { data: [] as { post_id: string; part: string; action: string }[] }
+
+  const internalApprovalKeys = new Set<string>()
+  const seenKeys = new Set<string>()
+  for (const h of historyRows ?? []) {
+    const key = `${h.post_id}:${h.part}`
+    if (seenKeys.has(key)) continue
+    seenKeys.add(key)
+    if (h.action === 'aprovado_interno') internalApprovalKeys.add(key)
+  }
+
   return (
     <div>
       <div className="mb-5">
@@ -58,6 +77,11 @@ export default async function ClienteCalendarioPage({
             index={idx}
             calendarId={calendarId}
             disabled={calendar.status === 'concluido'}
+            internalApproval={{
+              copy: internalApprovalKeys.has(`${post.id}:copy`),
+              caption: internalApprovalKeys.has(`${post.id}:caption`),
+              art: internalApprovalKeys.has(`${post.id}:art`),
+            }}
           />
         ))}
       </div>

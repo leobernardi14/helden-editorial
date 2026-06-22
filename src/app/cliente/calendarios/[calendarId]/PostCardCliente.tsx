@@ -15,7 +15,7 @@ const actionConfig: Record<ApprovalAction, { label: string; cls: string; activeC
 }
 
 function ApprovalBlock({
-  postId, calendarId, part, label, text, currentStatus, disabled,
+  postId, calendarId, part, label, text, currentStatus, disabled, approvedInternally,
 }: {
   postId: string
   calendarId: string
@@ -24,6 +24,7 @@ function ApprovalBlock({
   text: string
   currentStatus: PostStatus
   disabled: boolean
+  approvedInternally: boolean
 }) {
   const isPendente = currentStatus === 'pendente'
   const [expanded, setExpanded]           = useState(isPendente)
@@ -75,9 +76,14 @@ function ApprovalBlock({
     <div className={`rounded-r-xl border ${borderColor[currentStatus]} ${partBorderLeft} overflow-hidden`}>
       <div className={`px-4 py-3 ${bgColor[currentStatus]}`}>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className={`text-xs font-semibold uppercase tracking-wide ${partColor}`}>{label}</span>
             <StatusBadge status={currentStatus} />
+            {approvedInternally && currentStatus === 'aprovado' && (
+              <span className="text-xs font-medium text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-full">
+                Aprovado pela Helden (após seu ajuste)
+              </span>
+            )}
           </div>
           {!isPendente && !disabled && (
             <button
@@ -183,11 +189,13 @@ export default function PostCardCliente({
   index,
   calendarId,
   disabled,
+  internalApproval,
 }: {
   post: Post
   index: number
   calendarId: string
   disabled: boolean
+  internalApproval: { copy: boolean; caption: boolean; art: boolean }
 }) {
   const [lightboxOpen, setLightboxOpen] = useState(false)
 
@@ -271,6 +279,7 @@ export default function PostCardCliente({
               text="Avalie a imagem da arte acima."
               currentStatus={post.status_art}
               disabled={disabled}
+              approvedInternally={internalApproval.art}
             />
           </div>
         )}
@@ -285,6 +294,7 @@ export default function PostCardCliente({
             text={post.copy_text || '—'}
             currentStatus={post.status_copy}
             disabled={disabled}
+            approvedInternally={internalApproval.copy}
           />
         </div>
 
@@ -298,6 +308,7 @@ export default function PostCardCliente({
             text={post.caption || '—'}
             currentStatus={post.status_caption}
             disabled={disabled}
+            approvedInternally={internalApproval.caption}
           />
         </div>
       </div>

@@ -7,6 +7,7 @@ import StatusBadge from '@/components/StatusBadge'
 
 const actionLabels: Record<string, string> = {
   aprovado: 'Aprovado', reprovado: 'Reprovado', ajuste: 'Ajuste solicitado',
+  aprovado_interno: 'Aprovado internamente pela Helden',
 }
 
 export default function PostHistoryModal({
@@ -65,8 +66,9 @@ export default function PostHistoryModal({
                       {h.part === 'copy' ? 'Copy da arte' : h.part === 'caption' ? 'Legenda' : 'Arte'}
                     </span>
                     <span className={`text-sm font-medium ${
-                      h.action === 'aprovado' ? 'text-green-700' :
-                      h.action === 'reprovado' ? 'text-red-700' : 'text-yellow-700'
+                      h.action === 'aprovado'          ? 'text-green-700' :
+                      h.action === 'aprovado_interno'  ? 'text-indigo-700' :
+                      h.action === 'reprovado'         ? 'text-red-700' : 'text-yellow-700'
                     }`}>
                       {actionLabels[h.action]}
                     </span>
@@ -80,9 +82,10 @@ export default function PostHistoryModal({
                 </p>
                 {h.comment && (
                   <p className={`mt-2 text-sm rounded-lg p-3 whitespace-pre-line border ${
-                    h.action === 'reprovado' ? 'text-red-700 bg-red-50 border-red-100' :
-                    h.action === 'ajuste'    ? 'text-yellow-700 bg-yellow-50 border-yellow-100' :
-                                              'text-gray-700 bg-yellow-50 border-yellow-100'
+                    h.action === 'reprovado'        ? 'text-red-700 bg-red-50 border-red-100' :
+                    h.action === 'ajuste'            ? 'text-yellow-700 bg-yellow-50 border-yellow-100' :
+                    h.action === 'aprovado_interno'  ? 'text-indigo-700 bg-indigo-50 border-indigo-100' :
+                                                       'text-gray-700 bg-yellow-50 border-yellow-100'
                   }`}>
                     {h.comment}
                   </p>

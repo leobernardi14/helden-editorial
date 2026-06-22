@@ -2,9 +2,10 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { Post, CalendarStatus, PostStatus } from '@/lib/types'
+import { Post, CalendarStatus, PostStatus, ApprovalPart } from '@/lib/types'
 import { faseBadge, postProntoParaProgramar } from '@/lib/postProgress'
 import { markPostScheduledAction, unmarkPostScheduledAction, removePostAction, unarchivePostAction } from '@/app/actions/posts'
+import { approveInternallyAction } from '@/app/actions/approvals'
 import StatusBadge from '@/components/StatusBadge'
 import PostForm from './PostForm'
 import PostHistoryModal from './PostHistoryModal'
@@ -44,9 +45,23 @@ export default function PostList({
   const [removingId, setRemovingId]       = useState<string | null>(null)
   const [removeError, setRemoveError]     = useState<{ postId: string; message: string } | null>(null)
   const [showArchivedPosts, setShowArchivedPosts] = useState(false)
+  const [approvingPart, setApprovingPart] = useState<{ postId: string; part: ApprovalPart } | null>(null)
+  const [approveError, setApproveError]   = useState<{ postId: string; part: ApprovalPart; message: string } | null>(null)
 
   function postHasHistory(post: Post) {
     return postsWithHistoryIds.includes(post.id)
+  }
+
+  async function handleApproveInternally(post: Post, part: ApprovalPart) {
+    const partLabel = part === 'copy' ? 'Copy da arte' : part === 'caption' ? 'Legenda' : 'Arte'
+    if (!confirm(
+      `Aprovar "${partLabel}" internamente pela Helden, após o ajuste já corrigido?\n\nO cliente verá que foi a agência que aprovou (não ele), de forma transparente.`
+    )) return
+    setApprovingPart({ postId: post.id, part })
+    setApproveError(null)
+    const r = await approveInternallyAction(post.id, calendarId, part)
+    setApprovingPart(null)
+    if (r?.error) setApproveError({ postId: post.id, part, message: r.error })
   }
 
   async function handleMarkScheduled(post: Post) {
@@ -207,34 +222,70 @@ export default function PostList({
                   <div className="space-y-3">
                     {/* Copy da arte */}
                     <div className="pl-3 py-1.5 border-l-[3px] border-l-blue-400">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <span className="text-xs font-semibold text-blue-600 uppercase tracking-wide">Copy da arte</span>
                         <StatusBadge status={post.status_copy} />
+                        {post.status_copy === 'ajuste' && (
+                          <button
+                            onClick={() => handleApproveInternally(post, 'copy')}
+                            disabled={approvingPart?.postId === post.id && approvingPart.part === 'copy'}
+                            className="text-xs text-emerald-700 hover:text-emerald-900 border border-emerald-200 rounded-md px-2 py-0.5 transition-colors disabled:opacity-50"
+                          >
+                            {approvingPart?.postId === post.id && approvingPart.part === 'copy' ? 'Aprovando…' : 'Aprovar internamente (após ajuste)'}
+                          </button>
+                        )}
                       </div>
                       <ExpandableCaption text={post.copy_text || '—'} />
+                      {approveError?.postId === post.id && approveError.part === 'copy' && (
+                        <p className="text-xs text-red-600 mt-1">{approveError.message}</p>
+                      )}
                     </div>
 
                     {/* Legenda */}
                     <div className="pl-3 py-1.5 border-l-[3px] border-l-purple-400">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <span className="text-xs font-semibold text-purple-600 uppercase tracking-wide">Legenda</span>
                         <StatusBadge status={post.status_caption} />
+                        {post.status_caption === 'ajuste' && (
+                          <button
+                            onClick={() => handleApproveInternally(post, 'caption')}
+                            disabled={approvingPart?.postId === post.id && approvingPart.part === 'caption'}
+                            className="text-xs text-emerald-700 hover:text-emerald-900 border border-emerald-200 rounded-md px-2 py-0.5 transition-colors disabled:opacity-50"
+                          >
+                            {approvingPart?.postId === post.id && approvingPart.part === 'caption' ? 'Aprovando…' : 'Aprovar internamente (após ajuste)'}
+                          </button>
+                        )}
                       </div>
                       {post.caption
                         ? <ExpandableCaption text={post.caption} />
                         : <p className="text-sm text-gray-400 italic">Sem legenda</p>
                       }
+                      {approveError?.postId === post.id && approveError.part === 'caption' && (
+                        <p className="text-xs text-red-600 mt-1">{approveError.message}</p>
+                      )}
                     </div>
 
                     {/* Arte */}
                     <div className="pl-3 py-1.5 border-l-[3px] border-l-orange-400">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="text-xs font-semibold text-orange-500 uppercase tracking-wide">Arte</span>
                         {post.fase === 'arte'
                           ? <StatusBadge status={post.status_art} />
                           : <span className="text-xs text-gray-400 italic">aguardando liberação</span>
                         }
+                        {post.status_art === 'ajuste' && (
+                          <button
+                            onClick={() => handleApproveInternally(post, 'art')}
+                            disabled={approvingPart?.postId === post.id && approvingPart.part === 'art'}
+                            className="text-xs text-emerald-700 hover:text-emerald-900 border border-emerald-200 rounded-md px-2 py-0.5 transition-colors disabled:opacity-50"
+                          >
+                            {approvingPart?.postId === post.id && approvingPart.part === 'art' ? 'Aprovando…' : 'Aprovar internamente (após ajuste)'}
+                          </button>
+                        )}
                       </div>
+                      {approveError?.postId === post.id && approveError.part === 'art' && (
+                        <p className="text-xs text-red-600 mt-1">{approveError.message}</p>
+                      )}
                     </div>
                   </div>
 

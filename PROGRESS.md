@@ -112,6 +112,19 @@ Cada post tem **3 aprovações independentes** e **1 fase**:
 
 ---
 
+## Feature: Aprovação interna pela agência (após ajuste do cliente)
+
+- [x] **M1 — Migration SQL** — novo valor `'aprovado_interno'` no enum `approval_action` (sem novas colunas; histórico já tinha `comment` e `responded_by`)
+- [x] **M2 — Tipos** — `ApprovalHistoryAction = ApprovalAction | 'aprovado_interno'`; `ApprovalHistory.action` usa o novo tipo
+- [x] **M3 — Regra de elegibilidade** — só permite aprovar internamente uma parte cujo status atual seja exatamente `'ajuste'` (nunca `pendente`/`reprovado`); verificado no servidor (`approveInternallyAction`), independente do que a UI mostra
+- [x] **M4 — Actions** — `approveInternallyAction(postId, calendarId, part)`: confirma role `agencia`, busca o comentário do ajuste mais recente do cliente para referência, grava `action='aprovado_interno'` no histórico (autor = usuário da agência, nunca o cliente) e atualiza `status_copy`/`status_caption`/`status_art` para `'aprovado'`
+- [x] **M5 — UI agência** — botão "Aprovar internamente (após ajuste)" em cada seção (copy/legenda/arte) quando o status daquela parte é "Ajuste", com confirmação explícita
+- [x] **M6 — Histórico (agência)** — `PostHistoryModal` e `AtividadesFeed` exibem "Aprovado internamente pela Helden" / "Aprovado pela Helden (após ajuste)" em cor distinta (índigo), nunca confundido com aprovação do cliente
+- [x] **M7 — Visível ao cliente** — `PostCardCliente` mostra selo "Aprovado pela Helden (após seu ajuste)" ao lado do badge de status quando a aprovação daquela parte foi interna, calculado a partir da última linha de histórico daquele post/parte
+- [x] **M8 — Progresso** — reaproveita `status_copy`/`status_caption`/`status_art = 'aprovado'`; `postCompleto()`/`postProntoParaProgramar()` (função centralizada) tratam a parte como aprovada sem qualquer alteração de código
+
+---
+
 ## Melhorias futuras (v2)
 
 Itens identificados mas conscientemente postergados para depois do período de uso real. Retomar quando houver sinal de demanda real.
