@@ -67,17 +67,35 @@ export async function updatePostAction(formData: FormData) {
   if (!copyText) return { error: 'O campo "Copy da arte" é obrigatório.' }
   if (!caption)  return { error: 'O campo "Legenda" é obrigatório.' }
 
+  const { data: existing } = await supabase
+    .from('posts')
+    .select('copy_text, caption, image_url, fase')
+    .eq('id', postId)
+    .single()
+
   const updates: Record<string, unknown> = {
     copy_text: copyText,
     caption,
     post_type: postType,
     scheduled_date: scheduledDate,
-    // Editar textos reseta copys para pendente; fase e status_art permanecem
-    status_copy: 'pendente',
-    status_caption: 'pendente',
   }
 
-  if (imageUrl) updates.image_url = imageUrl
+  // Cada parte só reabre para reavaliação se o conteúdo dela de fato mudou —
+  // editar a arte (ex.: corrigir após reprovação) nunca deve reabrir copy/legenda já aprovadas.
+  if (!existing || copyText !== existing.copy_text) {
+    updates.status_copy = 'pendente'
+  }
+  if (!existing || caption !== existing.caption) {
+    updates.status_caption = 'pendente'
+  }
+
+  if (imageUrl) {
+    updates.image_url = imageUrl
+    // Nova arte enviada durante a fase de arte: reabre só a avaliação da arte
+    if (existing?.fase === 'arte' && imageUrl !== existing.image_url) {
+      updates.status_art = 'pendente'
+    }
+  }
 
   const { error } = await supabase.from('posts').update(updates).eq('id', postId)
   if (error) return { error: error.message }
