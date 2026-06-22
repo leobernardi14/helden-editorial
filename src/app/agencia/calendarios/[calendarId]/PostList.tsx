@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { Post, CalendarStatus, PostStatus } from '@/lib/types'
-import { faseBadge } from '@/lib/postProgress'
+import { faseBadge, postProntoParaProgramar } from '@/lib/postProgress'
+import { markPostScheduledAction, unmarkPostScheduledAction } from '@/app/actions/posts'
 import StatusBadge from '@/components/StatusBadge'
 import PostForm from './PostForm'
 import PostHistoryModal from './PostHistoryModal'
@@ -34,6 +35,25 @@ export default function PostList({
   const [historyPost, setHistoryPost]     = useState<Post | null>(null)
   const [lightboxPost, setLightboxPost]   = useState<Post | null>(null)
   const [releasingPost, setReleasingPost] = useState<Post | null>(null)
+  const [schedulingId, setSchedulingId]   = useState<string | null>(null)
+  const [scheduleError, setScheduleError] = useState<{ postId: string; message: string } | null>(null)
+
+  async function handleMarkScheduled(post: Post) {
+    setSchedulingId(post.id)
+    setScheduleError(null)
+    const r = await markPostScheduledAction(post.id, calendarId)
+    setSchedulingId(null)
+    if (r?.error) setScheduleError({ postId: post.id, message: r.error })
+  }
+
+  async function handleUnmarkScheduled(post: Post) {
+    if (!confirm('Desmarcar este post como programado?')) return
+    setSchedulingId(post.id)
+    setScheduleError(null)
+    const r = await unmarkPostScheduledAction(post.id, calendarId)
+    setSchedulingId(null)
+    if (r?.error) setScheduleError({ postId: post.id, message: r.error })
+  }
 
   return (
     <div>
@@ -215,6 +235,28 @@ export default function PostList({
                     >
                       Liberar arte
                     </button>
+                  )}
+                  {/* Marcar/desmarcar como programado: disponível quando as 3 partes estão aprovadas */}
+                  {postProntoParaProgramar(post) && !post.scheduled && (
+                    <button
+                      onClick={() => handleMarkScheduled(post)}
+                      disabled={schedulingId === post.id}
+                      className="text-xs text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 rounded-md px-2 py-1 transition-colors"
+                    >
+                      {schedulingId === post.id ? 'Marcando…' : 'Marcar como programado'}
+                    </button>
+                  )}
+                  {post.scheduled && (
+                    <button
+                      onClick={() => handleUnmarkScheduled(post)}
+                      disabled={schedulingId === post.id}
+                      className="text-xs text-gray-500 hover:text-black border border-gray-200 rounded-md px-2 py-1 transition-colors disabled:opacity-50"
+                    >
+                      {schedulingId === post.id ? 'Aguarde…' : 'Desmarcar programado'}
+                    </button>
+                  )}
+                  {scheduleError?.postId === post.id && (
+                    <p className="text-xs text-red-600 max-w-[140px] text-right">{scheduleError.message}</p>
                   )}
                 </div>
               </div>

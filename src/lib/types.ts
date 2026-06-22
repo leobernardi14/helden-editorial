@@ -49,6 +49,8 @@ export interface Post {
   status_caption: PostStatus
   status_art: PostStatus
   fase: PostFase
+  scheduled: boolean
+  scheduled_at: string | null
   created_at: string
   updated_at: string
 }

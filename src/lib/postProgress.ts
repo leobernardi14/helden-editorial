@@ -16,6 +16,9 @@ export function postProntoParaProgramar(p: Post): boolean {
 }
 
 export function faseBadge(p: Post): { label: string; cls: string } {
+  if (p.scheduled) {
+    return { label: 'Post Programado', cls: 'bg-emerald-600 text-white' }
+  }
   if (postProntoParaProgramar(p)) {
     return { label: 'Programar Post', cls: 'bg-helden-yellow text-black' }
   }

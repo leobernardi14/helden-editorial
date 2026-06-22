@@ -3,6 +3,13 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 
+async function verifyAgencia(supabase: Awaited<ReturnType<typeof createClient>>) {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return false
+  const { data } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  return data?.role === 'agencia'
+}
+
 export async function createPostAction(formData: FormData) {
   const supabase = await createClient()
   const calendarId    = formData.get('calendar_id') as string
@@ -92,6 +99,38 @@ export async function releaseArtAction(formData: FormData) {
   const { error } = await supabase
     .from('posts')
     .update({ image_url: imageUrl, fase: 'arte', status_art: 'pendente' })
+    .eq('id', postId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath(`/agencia/calendarios/${calendarId}`)
+  return { success: true }
+}
+
+// Marca um post (já liberado para programar, 3 partes aprovadas) como agendado pela agência
+export async function markPostScheduledAction(postId: string, calendarId: string) {
+  const supabase = await createClient()
+  if (!(await verifyAgencia(supabase))) return { error: 'Acesso negado.' }
+
+  const { error } = await supabase
+    .from('posts')
+    .update({ scheduled: true, scheduled_at: new Date().toISOString() })
+    .eq('id', postId)
+
+  if (error) return { error: error.message }
+
+  revalidatePath(`/agencia/calendarios/${calendarId}`)
+  return { success: true }
+}
+
+// Reverte a marcação de "programado", caso a agência tenha marcado por engano
+export async function unmarkPostScheduledAction(postId: string, calendarId: string) {
+  const supabase = await createClient()
+  if (!(await verifyAgencia(supabase))) return { error: 'Acesso negado.' }
+
+  const { error } = await supabase
+    .from('posts')
+    .update({ scheduled: false, scheduled_at: null })
     .eq('id', postId)
 
   if (error) return { error: error.message }
