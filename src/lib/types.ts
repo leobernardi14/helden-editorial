@@ -51,6 +51,8 @@ export interface Post {
   fase: PostFase
   scheduled: boolean
   scheduled_at: string | null
+  archived: boolean
+  archived_at: string | null
   created_at: string
   updated_at: string
 }

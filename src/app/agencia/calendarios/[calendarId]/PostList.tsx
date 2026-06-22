@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { Post, CalendarStatus, PostStatus } from '@/lib/types'
 import { faseBadge, postProntoParaProgramar } from '@/lib/postProgress'
-import { markPostScheduledAction, unmarkPostScheduledAction } from '@/app/actions/posts'
+import { markPostScheduledAction, unmarkPostScheduledAction, removePostAction, unarchivePostAction } from '@/app/actions/posts'
 import StatusBadge from '@/components/StatusBadge'
 import PostForm from './PostForm'
 import PostHistoryModal from './PostHistoryModal'
@@ -23,10 +23,14 @@ function copysApproved(post: Post) {
 
 export default function PostList({
   posts,
+  archivedPosts,
+  postsWithHistoryIds,
   calendarId,
   calendarStatus,
 }: {
   posts: Post[]
+  archivedPosts: Post[]
+  postsWithHistoryIds: string[]
   calendarId: string
   calendarStatus: CalendarStatus
 }) {
@@ -37,6 +41,13 @@ export default function PostList({
   const [releasingPost, setReleasingPost] = useState<Post | null>(null)
   const [schedulingId, setSchedulingId]   = useState<string | null>(null)
   const [scheduleError, setScheduleError] = useState<{ postId: string; message: string } | null>(null)
+  const [removingId, setRemovingId]       = useState<string | null>(null)
+  const [removeError, setRemoveError]     = useState<{ postId: string; message: string } | null>(null)
+  const [showArchivedPosts, setShowArchivedPosts] = useState(false)
+
+  function postHasHistory(post: Post) {
+    return postsWithHistoryIds.includes(post.id)
+  }
 
   async function handleMarkScheduled(post: Post) {
     setSchedulingId(post.id)
@@ -53,6 +64,28 @@ export default function PostList({
     const r = await unmarkPostScheduledAction(post.id, calendarId)
     setSchedulingId(null)
     if (r?.error) setScheduleError({ postId: post.id, message: r.error })
+  }
+
+  async function handleRemove(post: Post) {
+    const hasHistory = postHasHistory(post)
+    const confirmMsg = hasHistory
+      ? 'Este post já tem histórico de aprovação do cliente. Ele será ARQUIVADO (não excluído) — o histórico fica preservado e o post pode ser restaurado depois em "Ver posts arquivados". Continuar?'
+      : 'Este post ainda é um rascunho sem histórico. Ele será EXCLUÍDO PERMANENTEMENTE e não poderá ser recuperado. Tem certeza?'
+    if (!confirm(confirmMsg)) return
+    setRemovingId(post.id)
+    setRemoveError(null)
+    const r = await removePostAction(post.id, calendarId)
+    setRemovingId(null)
+    if (r?.error) setRemoveError({ postId: post.id, message: r.error })
+  }
+
+  async function handleUnarchivePost(post: Post) {
+    if (!confirm('Desarquivar este post? Ele volta para a lista principal.')) return
+    setRemovingId(post.id)
+    setRemoveError(null)
+    const r = await unarchivePostAction(post.id, calendarId)
+    setRemovingId(null)
+    if (r?.error) setRemoveError({ postId: post.id, message: r.error })
   }
 
   return (
@@ -258,12 +291,92 @@ export default function PostList({
                   {scheduleError?.postId === post.id && (
                     <p className="text-xs text-red-600 max-w-[140px] text-right">{scheduleError.message}</p>
                   )}
+                  {/* Excluir (rascunho sem histórico) ou Arquivar (já tem histórico do cliente) */}
+                  <button
+                    onClick={() => handleRemove(post)}
+                    disabled={removingId === post.id}
+                    className={`text-xs rounded-md px-2 py-1 transition-colors disabled:opacity-50 border ${
+                      postHasHistory(post)
+                        ? 'text-gray-500 hover:text-black border-gray-200'
+                        : 'text-red-600 hover:text-red-800 border-red-200'
+                    }`}
+                  >
+                    {removingId === post.id ? 'Aguarde…' : postHasHistory(post) ? 'Arquivar' : 'Excluir'}
+                  </button>
+                  {removeError?.postId === post.id && (
+                    <p className="text-xs text-red-600 max-w-[140px] text-right">{removeError.message}</p>
+                  )}
                 </div>
               </div>
             )}
           </div>
         ))}
       </div>
+
+      {/* Posts arquivados (já tiveram histórico do cliente; excluídos da lista principal) */}
+      {archivedPosts.length > 0 && (
+        <div className="mt-6">
+          {showArchivedPosts ? (
+            <>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  Posts arquivados ({archivedPosts.length})
+                </h3>
+                <button
+                  onClick={() => setShowArchivedPosts(false)}
+                  className="text-xs text-gray-400 hover:text-black transition-colors"
+                >
+                  Ocultar
+                </button>
+              </div>
+              <div className="space-y-2">
+                {archivedPosts.map((post) => (
+                  <div
+                    key={post.id}
+                    className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border border-dashed border-gray-200"
+                  >
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      {(() => { const b = faseBadge(post); return (
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${b.cls}`}>
+                          {b.label}
+                        </span>
+                      ) })()}
+                      <span className="text-sm text-gray-600 truncate">
+                        {post.copy_text || 'Sem copy'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 ml-3 shrink-0">
+                      <button
+                        onClick={() => setHistoryPost(post)}
+                        className="text-xs text-gray-500 hover:text-black border border-gray-200 rounded-md px-2 py-1 transition-colors"
+                      >
+                        Histórico
+                      </button>
+                      <button
+                        onClick={() => handleUnarchivePost(post)}
+                        disabled={removingId === post.id}
+                        className="text-xs text-gray-500 hover:text-black border border-gray-200 rounded-md px-2 py-1 transition-colors disabled:opacity-50"
+                      >
+                        {removingId === post.id ? '…' : 'Desarquivar'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {removeError && !posts.some((p) => p.id === removeError.postId) && (
+                <p className="text-xs text-red-600 mt-2">{removeError.message}</p>
+              )}
+            </>
+          ) : (
+            <button
+              onClick={() => setShowArchivedPosts(true)}
+              className="text-xs text-gray-400 hover:text-black transition-colors"
+            >
+              Ver posts arquivados ({archivedPosts.length}) →
+            </button>
+          )}
+        </div>
+      )}
 
       {historyPost && (
         <PostHistoryModal post={historyPost} onClose={() => setHistoryPost(null)} />

@@ -24,15 +24,25 @@ export default async function CalendarPage({
 
   if (!calendar) notFound()
 
-  const { data: posts } = await supabase
+  const { data: allPosts } = await supabase
     .from('posts')
     .select('*')
     .eq('calendar_id', calendarId)
     .order('position')
 
+  const posts = (allPosts ?? []).filter((p: Post) => !p.archived)
+  const archivedPosts = (allPosts ?? []).filter((p: Post) => p.archived)
+
+  const postIds = (allPosts ?? []).map((p: Post) => p.id)
+  const { data: historyRows } = postIds.length > 0
+    ? await supabase.from('approval_history').select('post_id').in('post_id', postIds)
+    : { data: [] as { post_id: string }[] }
+
+  const postsWithHistoryIds = Array.from(new Set((historyRows ?? []).map((h) => h.post_id)))
+
   const allApproved =
-    (posts ?? []).length > 0 &&
-    (posts ?? []).every((p: Post) => p.status === 'aprovado')
+    posts.length > 0 &&
+    posts.every((p: Post) => p.status === 'aprovado')
 
   return (
     <div>
@@ -71,7 +81,13 @@ export default async function CalendarPage({
         </div>
       </div>
 
-      <PostList posts={posts ?? []} calendarId={calendarId} calendarStatus={calendar.status} />
+      <PostList
+        posts={posts}
+        archivedPosts={archivedPosts}
+        postsWithHistoryIds={postsWithHistoryIds}
+        calendarId={calendarId}
+        calendarStatus={calendar.status}
+      />
     </div>
   )
 }

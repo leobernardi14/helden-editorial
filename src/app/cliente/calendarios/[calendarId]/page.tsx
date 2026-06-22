@@ -26,6 +26,7 @@ export default async function ClienteCalendarioPage({
     .from('posts')
     .select('*')
     .eq('calendar_id', calendarId)
+    .eq('archived', false)
     .order('position')
 
   const postList = (posts ?? []) as Post[]

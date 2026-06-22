@@ -93,6 +93,25 @@ Cada post tem **3 aprovações independentes** e **1 fase**:
 
 ---
 
+## Feature: Marcar post como "Post Programado" (agência)
+
+- [x] **K1 — Migration SQL** — `scheduled BOOLEAN NOT NULL DEFAULT false` + `scheduled_at TIMESTAMPTZ` em `posts`
+- [x] **K2 — Tipos + Actions** — `Post.scheduled`/`scheduled_at`, `markPostScheduledAction`/`unmarkPostScheduledAction` com role check
+- [x] **K3 — Badge** — `faseBadge()` prioriza "Post Programado" (verde esmeralda) sobre "Programar Post"; `postCompleto()` inalterado
+- [x] **K4 — UI agência** — botão "Marcar como programado" quando as 3 partes aprovadas; "Desmarcar programado" com confirmação. Estado interno da agência, não afeta o cliente
+
+---
+
+## Feature: Excluir/arquivar post (agência)
+
+- [x] **L1 — Migration SQL** — `archived BOOLEAN NOT NULL DEFAULT false` + `archived_at TIMESTAMPTZ` em `posts`
+- [x] **L2 — Regra de exclusão** — exclusão definitiva só quando o post NÃO tem nenhuma linha em `approval_history` (nunca avaliado pelo cliente); caso contrário, arquiva preservando histórico. Critério verificado no servidor (`removePostAction`), nunca confiado ao cliente
+- [x] **L3 — Tipos + Actions** — `Post.archived`/`archived_at`, `removePostAction` (decide excluir vs. arquivar), `unarchivePostAction`, ambas com role check
+- [x] **L4 — UI agência** — botão único cujo rótulo reflete a ação real ("Excluir" em vermelho para rascunho sem histórico, "Arquivar" neutro quando já há histórico), sempre com confirmação explícita; toggle "Ver posts arquivados" com opção de Desarquivar e ver Histórico
+- [x] **L5 — Lado do cliente** — query do cliente filtra `archived=false`; posts arquivados nunca aparecem. Numeração dos posts restantes (agência e cliente) segue o índice da lista filtrada, sem gaps
+
+---
+
 ## Melhorias futuras (v2)
 
 Itens identificados mas conscientemente postergados para depois do período de uso real. Retomar quando houver sinal de demanda real.

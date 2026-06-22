@@ -150,10 +150,48 @@ export async function reorderPostsAction(calendarId: string, orderedIds: string[
   return { success: true }
 }
 
-export async function deletePostAction(postId: string, calendarId: string) {
+// Remove um post: exclui de verdade se nunca teve interação do cliente (sem
+// histórico em approval_history); caso já tenha histórico, arquiva preservando tudo.
+export async function removePostAction(postId: string, calendarId: string) {
   const supabase = await createClient()
-  const { error } = await supabase.from('posts').delete().eq('id', postId)
+  if (!(await verifyAgencia(supabase))) return { error: 'Acesso negado.' }
+
+  const { count, error: countErr } = await supabase
+    .from('approval_history')
+    .select('id', { count: 'exact', head: true })
+    .eq('post_id', postId)
+
+  if (countErr) return { error: countErr.message }
+
+  if ((count ?? 0) === 0) {
+    const { error } = await supabase.from('posts').delete().eq('id', postId)
+    if (error) return { error: error.message }
+    revalidatePath(`/agencia/calendarios/${calendarId}`)
+    return { success: true, deleted: true }
+  }
+
+  const { error } = await supabase
+    .from('posts')
+    .update({ archived: true, archived_at: new Date().toISOString() })
+    .eq('id', postId)
+
   if (error) return { error: error.message }
+
+  revalidatePath(`/agencia/calendarios/${calendarId}`)
+  return { success: true, archived: true }
+}
+
+export async function unarchivePostAction(postId: string, calendarId: string) {
+  const supabase = await createClient()
+  if (!(await verifyAgencia(supabase))) return { error: 'Acesso negado.' }
+
+  const { error } = await supabase
+    .from('posts')
+    .update({ archived: false, archived_at: null })
+    .eq('id', postId)
+
+  if (error) return { error: error.message }
+
   revalidatePath(`/agencia/calendarios/${calendarId}`)
   return { success: true }
 }
