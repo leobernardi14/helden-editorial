@@ -74,6 +74,7 @@ export interface ApprovalHistory {
 export interface CalendarWithStats extends Calendar {
   total_posts: number
   done: number        // posts com todas as partes da fase atual avaliadas
+  displayStatus: import('./postProgress').CalendarDisplayStatus
 }
 
 export interface ClientWithCalendars extends Client {

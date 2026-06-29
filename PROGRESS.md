@@ -125,6 +125,21 @@ Cada post tem **3 aprovações independentes** e **1 fase**:
 
 ---
 
+## Feature: Status dinâmico do calendário (derivado dos posts)
+
+- [x] **N1 — Sem migration** — status calculado em tempo real a partir dos posts; campo `status` no DB preservado (controla acesso do cliente)
+- [x] **N2 — Lógica centralizada** — `calendarDisplayStatus(posts, calDbStatus)` em `postProgress.ts`, reutiliza `postProntoParaProgramar()`; `calendarDisplayBadge()` retorna label+cls
+- [x] **N3 — Quatro estados**
+  - "Rascunho" → DB status = 'rascunho'
+  - "Enviado" → liberado ao cliente, mas ao menos um post sem todas as partes aprovadas (inclui calendários sem posts)
+  - "Aprovado" → todos os posts ativos com copy + legenda + arte aprovadas
+  - "Programar" → todos aprovados E todos marcados como "Post Programado"
+- [x] **N4 — UI agência** — badge computado na lista de calendários do dashboard e na página de detalhe do calendário
+- [x] **N5 — UI cliente** — badge computado na lista de calendários do dashboard do cliente; barra de progresso preservada
+- [x] **N6 — Posts arquivados ignorados** — posts arquivados não contam no cálculo (só posts ativos)
+
+---
+
 ## Melhorias futuras (v2)
 
 Itens identificados mas conscientemente postergados para depois do período de uso real. Retomar quando houver sinal de demanda real.

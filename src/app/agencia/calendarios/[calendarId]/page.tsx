@@ -1,12 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import StatusBadge from '@/components/StatusBadge'
 import PostList from './PostList'
 import CalendarActions from './CalendarActions'
 import CalendarEditArchiveActions from './CalendarEditArchiveActions'
 import GeneratePdfButton from './GeneratePdfButton'
 import { Post } from '@/lib/types'
+import { calendarDisplayStatus, calendarDisplayBadge } from '@/lib/postProgress'
 
 export default async function CalendarPage({
   params,
@@ -44,6 +44,9 @@ export default async function CalendarPage({
     posts.length > 0 &&
     posts.every((p: Post) => p.status === 'aprovado')
 
+  const displayStatus = calendarDisplayStatus(allPosts as Post[], calendar.status)
+  const displayBadge = calendarDisplayBadge(displayStatus)
+
   return (
     <div>
       <div className="mb-6">
@@ -63,7 +66,7 @@ export default async function CalendarPage({
           </div>
           <div className="flex flex-col items-stretch sm:items-end gap-2 shrink-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <StatusBadge status={calendar.status} />
+              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium shrink-0 ${displayBadge.cls}`}>{displayBadge.label}</span>
               <CalendarActions
                 calendarId={calendarId}
                 status={calendar.status}

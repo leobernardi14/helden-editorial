@@ -1,11 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { CalendarWithStats, Client, Post } from '@/lib/types'
-import StatusBadge from '@/components/StatusBadge'
 import NewClientButton from './clientes/NewClientButton'
 import ClientActions from './clientes/ClientActions'
 import UnarchiveCalendarButton from './calendarios/UnarchiveCalendarButton'
-import { postCompleto } from '@/lib/postProgress'
+import { postCompleto, calendarDisplayStatus, calendarDisplayBadge } from '@/lib/postProgress'
 
 export default async function AgenciaDashboard({
   searchParams,
@@ -38,7 +37,7 @@ export default async function AgenciaDashboard({
       const [activeRes, archivedCountRes, archivedCalsRes] = await Promise.all([
         supabase
           .from('calendars')
-          .select(`*, posts(id, fase, status_copy, status_caption, status_art)`)
+          .select(`*, posts(id, fase, status_copy, status_caption, status_art, scheduled, archived)`)
           .eq('client_id', client.id)
           .eq('archived', false)
           .order('created_at', { ascending: false }),
@@ -50,17 +49,22 @@ export default async function AgenciaDashboard({
         showArchivedCals
           ? supabase
               .from('calendars')
-              .select(`*, posts(id, fase, status_copy, status_caption, status_art)`)
+              .select(`*, posts(id, fase, status_copy, status_caption, status_art, scheduled, archived)`)
               .eq('client_id', client.id)
               .eq('archived', true)
               .order('archived_at', { ascending: false })
           : Promise.resolve({ data: null }),
       ])
 
-      const enrich = (cals: ({ posts?: Pick<Post, 'id' | 'fase' | 'status_copy' | 'status_caption' | 'status_art'>[] } & Record<string, unknown>)[]) =>
+      const enrich = (cals: ({ posts?: Pick<Post, 'id' | 'fase' | 'status_copy' | 'status_caption' | 'status_art' | 'scheduled' | 'archived'>[] } & Record<string, unknown>)[]) =>
         cals.map((cal) => {
-          const posts = cal.posts ?? []
-          return { ...cal, total_posts: posts.length, done: posts.filter((p) => postCompleto(p as Post)).length } as CalendarWithStats
+          const calPosts = cal.posts ?? []
+          return {
+            ...cal,
+            total_posts: calPosts.filter((p) => !p.archived).length,
+            done: calPosts.filter((p) => !p.archived && postCompleto(p as Post)).length,
+            displayStatus: calendarDisplayStatus(calPosts as Post[], (cal as { status: import('@/lib/types').CalendarStatus }).status),
+          } as CalendarWithStats
         })
 
       return {
@@ -203,7 +207,7 @@ export default async function AgenciaDashboard({
                     className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors group"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <StatusBadge status={cal.status} />
+                      {(() => { const b = calendarDisplayBadge(cal.displayStatus); return <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium shrink-0 ${b.cls}`}>{b.label}</span> })()}
                       <span className="text-sm font-medium text-gray-800 truncate group-hover:text-black">
                         {cal.title}
                       </span>
@@ -252,7 +256,7 @@ export default async function AgenciaDashboard({
                               href={`/agencia/calendarios/${cal.id}`}
                               className="flex items-center gap-3 min-w-0 flex-1 hover:opacity-70 transition-opacity"
                             >
-                              <StatusBadge status={cal.status} />
+                              {(() => { const b = calendarDisplayBadge(cal.displayStatus); return <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium shrink-0 ${b.cls}`}>{b.label}</span> })()}
                               <span className="text-sm font-medium text-gray-600 truncate">
                                 {cal.title}
                               </span>

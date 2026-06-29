@@ -1,26 +1,27 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import StatusBadge from '@/components/StatusBadge'
 import { Calendar, Post } from '@/lib/types'
-import { postCompleto } from '@/lib/postProgress'
+import { postCompleto, calendarDisplayStatus, calendarDisplayBadge } from '@/lib/postProgress'
 
 export default async function ClienteDashboard() {
   const supabase = await createClient()
 
   const { data: calendars } = await supabase
     .from('calendars')
-    .select(`*, posts(id, fase, status_copy, status_caption, status_art)`)
+    .select(`*, posts(id, fase, status_copy, status_caption, status_art, scheduled, archived)`)
     .in('status', ['enviado', 'concluido'])
     .eq('archived', false)
     .order('created_at', { ascending: false })
 
-  type CalWithPosts = Calendar & { posts: Pick<Post, 'id' | 'fase' | 'status_copy' | 'status_caption' | 'status_art'>[] }
+  type CalWithPosts = Calendar & { posts: Pick<Post, 'id' | 'fase' | 'status_copy' | 'status_caption' | 'status_art' | 'scheduled' | 'archived'>[] }
 
   const enriched = (calendars as CalWithPosts[] ?? []).map((cal) => {
     const posts = cal.posts ?? []
-    const total = posts.length
-    const done = posts.filter((p) => postCompleto(p as Post)).length
-    return { ...cal, total, done }
+    const activePosts = posts.filter((p) => !p.archived)
+    const total = activePosts.length
+    const done = activePosts.filter((p) => postCompleto(p as Post)).length
+    const displayStatus = calendarDisplayStatus(posts as Post[], cal.status)
+    return { ...cal, total, done, displayStatus }
   })
 
   return (
@@ -51,7 +52,7 @@ export default async function ClienteDashboard() {
                     <p className="text-xs text-gray-400 mt-0.5">{cal.reference_month}</p>
                   )}
                 </div>
-                <StatusBadge status={cal.status} />
+                {(() => { const b = calendarDisplayBadge(cal.displayStatus); return <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium shrink-0 ${b.cls}`}>{b.label}</span> })()}
               </div>
 
               {cal.total > 0 && (
