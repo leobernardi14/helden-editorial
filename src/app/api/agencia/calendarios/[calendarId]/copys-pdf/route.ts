@@ -38,11 +38,12 @@ export async function GET(
     .select('*')
     .eq('calendar_id', calendarId)
     .eq('status_copy', 'aprovado')
+    .eq('status_caption', 'aprovado')
     .order('position')
 
   if (!posts || posts.length === 0) {
     return NextResponse.json(
-      { error: 'Nenhum post com copy da arte aprovada neste calendário ainda.' },
+      { error: 'Nenhum post com copy da arte e legenda ambas aprovadas neste calendário ainda.' },
       { status: 422 }
     )
   }
@@ -54,6 +55,7 @@ export async function GET(
     post_type: p.post_type,
     scheduled_date: p.scheduled_date,
     copy_text: p.copy_text,
+    caption: p.caption,
   }))
 
   const buffer = await renderToBuffer(
