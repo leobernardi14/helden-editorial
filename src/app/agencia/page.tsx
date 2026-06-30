@@ -208,9 +208,14 @@ export default async function AgenciaDashboard({
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       {(() => { const b = calendarDisplayBadge(cal.displayStatus); return <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium shrink-0 ${b.cls}`}>{b.label}</span> })()}
-                      <span className="text-sm font-medium text-gray-800 truncate group-hover:text-black">
-                        {cal.title}
-                      </span>
+                      <div className="min-w-0">
+                        <span className="text-sm font-medium text-gray-800 truncate group-hover:text-black block">
+                          {cal.title}
+                        </span>
+                        {cal.reference_month && (
+                          <span className="text-xs text-gray-400">{cal.reference_month}</span>
+                        )}
+                      </div>
                     </div>
                     <div className="flex items-center gap-3 ml-3 shrink-0 text-xs text-gray-500">
                       {cal.total_posts > 0 ? (
